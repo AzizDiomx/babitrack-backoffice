@@ -1,0 +1,65 @@
+@import "tailwindcss";
+
+:root {
+  --background: #000000;
+  --foreground: #f8fafc;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-inter), Arial, sans-serif;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #000000;
+}
+::-webkit-scrollbar-thumb {
+  background: #27272a;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #ea580c;
+}
+
+
+/* Leaflet maps custom dark theme overlay */
+.dark-map .leaflet-tile {
+  filter: hue-rotate(180deg) invert(100%) contrast(90%) brightness(90%) saturate(120%);
+}
+.dark-map .leaflet-container {
+  background: #000000;
+  font-family: var(--font-sans);
+}
+.dark-map .leaflet-bar a {
+  background-color: #121212 !important;
+  color: #f8fafc !important;
+  border-bottom: 1px solid #27272a !important;
+}
+.dark-map .leaflet-bar a:hover {
+  background-color: #27272a !important;
+}
+.dark-map .leaflet-popup-content-wrapper {
+  background: #121212 !important;
+  color: #f8fafc !important;
+  border-radius: 12px !important;
+  border: 1px solid #27272a;
+  padding: 4px;
+}
+.dark-map .leaflet-popup-tip {
+  background: #121212 !important;
+}
+
+/* Import Leaflet CSS directly in globals */
+@import "leaflet/dist/leaflet.css";
