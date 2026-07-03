@@ -34,17 +34,51 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
+  const isTokenExpired = (tokenString: string): boolean => {
+    try {
+      const parts = tokenString.split('.');
+      if (parts.length !== 3) return true;
+      const payloadBase64 = parts[1];
+      
+      const base64 = payloadBase64.replace(/-/g, '+').replace(/_/g, '/');
+      const jsonPayload = decodeURIComponent(
+        atob(base64)
+          .split('')
+          .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+          .join('')
+      );
+      
+      const { exp } = JSON.parse(jsonPayload);
+      if (!exp) return false;
+      
+      return exp * 1000 < Date.now();
+    } catch (err) {
+      console.error('[JWT Decode Error] Failed to decode token:', err);
+      return true;
+    }
+  };
+
   useEffect(() => {
     // Charger le token et les données utilisateur depuis le localStorage
     const savedToken = localStorage.getItem('babitrack_admin_token');
     const savedUser = localStorage.getItem('babitrack_admin_user');
 
     if (savedToken && savedUser) {
-      setToken(savedToken);
-      setUser(JSON.parse(savedUser));
+      if (isTokenExpired(savedToken)) {
+        console.warn('[AuthContext] Token expiré ou corrompu détecté au démarrage. Déconnexion...');
+        localStorage.removeItem('babitrack_admin_token');
+        localStorage.removeItem('babitrack_admin_user');
+        document.cookie = `babitrack_admin_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT`;
+        setToken(null);
+        setUser(null);
+        router.push('/login');
+      } else {
+        setToken(savedToken);
+        setUser(JSON.parse(savedUser));
+      }
     }
     setLoading(false);
-  }, []);
+  }, [router]);
 
   const login = async (telephone: string, password: string) => {
     try {

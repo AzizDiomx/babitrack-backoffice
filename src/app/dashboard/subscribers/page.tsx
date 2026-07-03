@@ -60,6 +60,15 @@ export default function SubscribersPage() {
   const [dateFin, setDateFin] = useState(
     new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
   );
+
+  // Mettre à jour automatiquement le montant lorsque le produit (type d'abonnement) change
+  useEffect(() => {
+    if (subType === 'ALLER' || subType === 'RETOUR') {
+      setMontant('10000');
+    } else if (subType === 'ALLER_RETOUR') {
+      setMontant('15000');
+    }
+  }, [subType]);
   
   // Import file upload state
   const [isDragging, setIsDragging] = useState(false);
