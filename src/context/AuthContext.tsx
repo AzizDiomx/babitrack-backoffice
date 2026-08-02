@@ -67,6 +67,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       if (isTokenExpired(savedToken)) {
         console.warn('[AuthContext] Token expiré ou corrompu détecté au démarrage. Déconnexion...');
         localStorage.removeItem('babitrack_admin_token');
+        localStorage.removeItem('babitrack_admin_refresh_token');
         localStorage.removeItem('babitrack_admin_user');
         document.cookie = `babitrack_admin_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT`;
         setToken(null);
@@ -83,7 +84,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const login = async (telephone: string, password: string) => {
     try {
       const response = await api.post('/api/auth/login', { telephone, password });
-      const { accessToken, user: userData } = response.data;
+      const { accessToken, refreshToken, user: userData } = response.data;
 
       // Vérifier que le rôle est bien ADMIN ou SUPER_ADMIN
       if (userData.role !== 'ADMIN' && userData.role !== 'SUPER_ADMIN') {
@@ -91,6 +92,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       }
 
       localStorage.setItem('babitrack_admin_token', accessToken);
+      localStorage.setItem('babitrack_admin_refresh_token', refreshToken);
       localStorage.setItem('babitrack_admin_user', JSON.stringify(userData));
       document.cookie = `babitrack_admin_token=${accessToken}; path=/; max-age=604800; SameSite=Lax; Secure`;
 
@@ -110,6 +112,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const logout = () => {
     localStorage.removeItem('babitrack_admin_token');
+    localStorage.removeItem('babitrack_admin_refresh_token');
     localStorage.removeItem('babitrack_admin_user');
     document.cookie = `babitrack_admin_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT`;
     setToken(null);

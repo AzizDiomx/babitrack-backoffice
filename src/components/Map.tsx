@@ -7,6 +7,8 @@ import { io as SocketIOClient } from 'socket.io-client';
 import api, { API_URL } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 
+import { Maximize2, Minimize2 } from 'lucide-react';
+
 // Correction des icônes Leaflet par défaut
 const defaultIcon = L.icon({
   iconUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png',
@@ -48,14 +50,51 @@ interface VehiclePosition {
   statut?: string;
 }
 
+import { createPortal } from 'react-dom';
+
 // Composant interne pour recentrer la carte
 function ChangeView({ center }: { center: [number, number] }) {
   const map = useMap();
   useEffect(() => {
     map.setView(center);
-  }, [center]);
+    setTimeout(() => {
+      map.invalidateSize();
+    }, 200);
+  }, [center, map]);
   return null;
 }
+
+// Composant interne pour redimensionner Leaflet au passage en plein écran
+function ResizeMapOnFullscreen({ isFullscreen }: { isFullscreen: boolean }) {
+  const map = useMap();
+  useEffect(() => {
+    const t1 = setTimeout(() => map.invalidateSize(), 50);
+    const t2 = setTimeout(() => map.invalidateSize(), 350);
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+    };
+  }, [isFullscreen, map]);
+  return null;
+}
+
+type MapProvider = 'google-roadmap' | 'google-hybrid' | 'osm';
+type RouteFilter = 'ALL' | 'MATIN' | 'SOIR';
+
+const MAP_TILE_URLS: Record<MapProvider, { url: string; attribution: string }> = {
+  'google-hybrid': {
+    url: 'https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}',
+    attribution: '&copy; Google Maps Satellite',
+  },
+  'google-roadmap': {
+    url: 'https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',
+    attribution: '&copy; Google Maps',
+  },
+  osm: {
+    url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+    attribution: '&copy; OpenStreetMap',
+  },
+};
 
 export default function Map() {
   const { user, token } = useAuth();
@@ -63,37 +102,32 @@ export default function Map() {
   const [positions, setPositions] = useState<{ [key: string]: VehiclePosition }>({});
   const [routePaths, setRoutePaths] = useState<{ [routeId: string]: [number, number][] }>({});
   const [mapCenter, setMapCenter] = useState<[number, number]>([5.3484, -4.0152]); // Abidjan par défaut
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [mapProvider, setMapProvider] = useState<MapProvider>('google-hybrid');
+  const [routeFilter, setRouteFilter] = useState<RouteFilter>('ALL');
   const socketRef = useRef<any>(null);
 
   const fetchRoutePaths = async (loadedRoutes: Route[]) => {
     const paths: { [routeId: string]: [number, number][] } = {};
     
     for (const route of loadedRoutes) {
-      if (route.stops.length < 2) continue;
-      
-      const sortedStops = [...route.stops].sort((a, b) => a.ordre - b.ordre);
-      const coordsString = sortedStops
-        .map((stop) => `${stop.longitude},${stop.latitude}`)
-        .join(';');
-      
+      if (!route.stops || route.stops.length < 2) continue;
+
       try {
-        const url = `https://router.project-osrm.org/route/v1/driving/${coordsString}?overview=full&geometries=geojson`;
-        const response = await fetch(url);
-        const data = await response.json();
-        
-        if (data.code === 'Ok' && data.routes && data.routes.length > 0) {
-          const streetCoords = data.routes[0].geometry.coordinates.map(
-            ([lng, lat]: [number, number]) => [lat, lng] as [number, number]
-          );
-          paths[route.id] = streetCoords;
+        const res = await api.get(`/api/routes/${route.id}/path`);
+        if (res.data && res.data.path && res.data.path.length > 0) {
+          paths[route.id] = res.data.path;
         } else {
-          paths[route.id] = sortedStops.map((s) => [s.latitude, s.longitude] as [number, number]);
+          const sortedStops = [...route.stops].sort((a, b) => a.ordre - b.ordre);
+          paths[route.id] = sortedStops.map((s) => [s.latitude, s.longitude]);
         }
       } catch (err) {
-        console.error(`Erreur OSRM pour la route ${route.nom}:`, err);
-        paths[route.id] = sortedStops.map((s) => [s.latitude, s.longitude] as [number, number]);
+        console.error(`Erreur géométrie trajet ${route.id}:`, err);
+        const sortedStops = [...route.stops].sort((a, b) => a.ordre - b.ordre);
+        paths[route.id] = sortedStops.map((s) => [s.latitude, s.longitude]);
       }
     }
+
     setRoutePaths(paths);
   };
 
@@ -206,8 +240,128 @@ export default function Map() {
     };
   }, [token, user, routes]);
 
-  return (
-    <div className="dark-map h-full w-full rounded-3xl overflow-hidden border border-slate-800/80 shadow-inner relative">
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const activeTileConfig = MAP_TILE_URLS[mapProvider];
+
+  const mapElement = (
+    <div
+      className={
+        isFullscreen
+          ? 'fixed inset-0 z-[99999] bg-zinc-950 p-4 w-screen h-screen dark-map relative flex flex-col'
+          : 'dark-map h-full w-full rounded-3xl overflow-hidden border border-slate-800/80 shadow-inner relative'
+      }
+    >
+      {/* Top Map Controls */}
+      <div className="absolute top-4 right-4 z-[1000] flex items-center gap-2 flex-wrap justify-end">
+        {/* Route Type Filter Selector */}
+        <div className="flex items-center gap-1 bg-slate-900/90 backdrop-blur border border-slate-800 rounded-xl p-1 shadow-lg">
+          <button
+            type="button"
+            onClick={() => setRouteFilter('ALL')}
+            className={`px-2.5 py-1 text-[11px] font-bold rounded-lg transition cursor-pointer ${
+              routeFilter === 'ALL'
+                ? 'bg-zinc-700 text-white'
+                : 'text-slate-400 hover:text-slate-200'
+            }`}
+            title="Afficher les deux trajets (Aller et Retour)"
+          >
+            🔄 Les deux
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setRouteFilter('MATIN')}
+            className={`px-2.5 py-1 text-[11px] font-bold rounded-lg transition cursor-pointer ${
+              routeFilter === 'MATIN'
+                ? 'bg-orange-600 text-white'
+                : 'text-slate-400 hover:text-slate-200'
+            }`}
+            title="Afficher uniquement le trajet Aller (Matin)"
+          >
+            🌅 Aller (Matin)
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setRouteFilter('SOIR')}
+            className={`px-2.5 py-1 text-[11px] font-bold rounded-lg transition cursor-pointer ${
+              routeFilter === 'SOIR'
+                ? 'bg-blue-600 text-white'
+                : 'text-slate-400 hover:text-slate-200'
+            }`}
+            title="Afficher uniquement le trajet Retour (Soir)"
+          >
+            🌇 Retour (Soir)
+          </button>
+        </div>
+
+        {/* Map Provider Selector */}
+        <div className="flex items-center gap-1 bg-slate-900/90 backdrop-blur border border-slate-800 rounded-xl p-1 shadow-lg">
+          <button
+            type="button"
+            onClick={() => setMapProvider('google-hybrid')}
+            className={`px-2.5 py-1 text-[11px] font-bold rounded-lg transition cursor-pointer ${
+              mapProvider === 'google-hybrid'
+                ? 'bg-orange-600 text-white'
+                : 'text-slate-400 hover:text-slate-200'
+            }`}
+            title="Google Maps Imagerie Satellite HD avec repères"
+          >
+            🛰️ Satellite HD
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setMapProvider('google-roadmap')}
+            className={`px-2.5 py-1 text-[11px] font-bold rounded-lg transition cursor-pointer ${
+              mapProvider === 'google-roadmap'
+                ? 'bg-orange-600 text-white'
+                : 'text-slate-400 hover:text-slate-200'
+            }`}
+            title="Google Maps Routier HD"
+          >
+            🗺️ Google Plan
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setMapProvider('osm')}
+            className={`px-2.5 py-1 text-[11px] font-bold rounded-lg transition cursor-pointer ${
+              mapProvider === 'osm'
+                ? 'bg-orange-600 text-white'
+                : 'text-slate-400 hover:text-slate-200'
+            }`}
+            title="OpenStreetMap Standard"
+          >
+            🌐 OpenStreet
+          </button>
+        </div>
+
+        {/* Fullscreen Toggle Button */}
+        <button
+          onClick={() => setIsFullscreen((prev) => !prev)}
+          className="bg-slate-900/90 hover:bg-slate-800 backdrop-blur border border-slate-800 rounded-xl px-3 py-2 text-xs font-bold text-slate-200 flex items-center gap-2 shadow-lg cursor-pointer transition"
+          title={isFullscreen ? 'Quitter le plein écran' : 'Plein écran'}
+        >
+          {isFullscreen ? (
+            <>
+              <Minimize2 className="h-4 w-4 text-orange-500" />
+              <span className="hidden sm:inline">Réduire</span>
+            </>
+          ) : (
+            <>
+              <Maximize2 className="h-4 w-4 text-orange-500" />
+              <span className="hidden sm:inline">Plein écran</span>
+            </>
+          )}
+        </button>
+      </div>
+
       <MapContainer
         center={mapCenter}
         zoom={13}
@@ -215,25 +369,42 @@ export default function Map() {
         scrollWheelZoom={true}
       >
         <ChangeView center={mapCenter} />
+        <ResizeMapOnFullscreen isFullscreen={isFullscreen} />
         <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          key={mapProvider}
+          attribution={activeTileConfig.attribution}
+          url={activeTileConfig.url}
+          maxZoom={20}
         />
 
-        {/* Dessiner les trajets (Polylines) et arrêts */}
-        {routes.map((route) => {
+        {/* Dessiner les trajets (Polylines) et arrêts filtrés */}
+        {routes
+          .filter((route) => {
+            if (routeFilter === 'MATIN') return route.type === 'MATIN';
+            if (routeFilter === 'SOIR') return route.type === 'SOIR';
+            return true;
+          })
+          .map((route) => {
           const stopsPoints = route.stops.map((s) => [s.latitude, s.longitude] as [number, number]);
           const streetPath = routePaths[route.id] || stopsPoints;
           return (
             <React.Fragment key={route.id}>
-              {/* Ligne du trajet */}
+              {/* Tracé direct et propre du trajet (Ligne externe néon + Cœur intérieur) */}
               {streetPath.length > 1 && (
-                <Polyline
-                  positions={streetPath}
-                  color={route.type === 'MATIN' ? '#f97316' : '#3b82f6'} // Orange matin, Bleu soir
-                  weight={4}
-                  opacity={0.7}
-                />
+                <>
+                  <Polyline
+                    positions={streetPath}
+                    color={route.type === 'MATIN' ? '#f97316' : '#2563eb'}
+                    weight={6}
+                    opacity={0.9}
+                  />
+                  <Polyline
+                    positions={streetPath}
+                    color="#ffffff"
+                    weight={2}
+                    opacity={0.8}
+                  />
+                </>
               )}
 
               {/* Arrêts */}
@@ -322,4 +493,10 @@ export default function Map() {
       </div>
     </div>
   );
+
+  if (isFullscreen && mounted) {
+    return createPortal(mapElement, document.body);
+  }
+
+  return mapElement;
 }

@@ -1,8 +1,19 @@
 @import "tailwindcss";
 
-:root {
+:root, html.dark {
   --background: #000000;
   --foreground: #f8fafc;
+  --card-bg: #121212;
+  --card-border: #27272a;
+  --input-bg: #18181b;
+}
+
+html.light {
+  --background: #F4F4F5;
+  --foreground: #18181B;
+  --card-bg: #FFFFFF;
+  --card-border: #E4E4E7;
+  --input-bg: #F4F4F5;
 }
 
 @theme inline {
@@ -15,6 +26,7 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans);
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 /* Custom scrollbars */
@@ -22,42 +34,48 @@ body {
   width: 6px;
   height: 6px;
 }
-::-webkit-scrollbar-track {
+html.dark ::-webkit-scrollbar-track {
   background: #000000;
 }
-::-webkit-scrollbar-thumb {
+html.light ::-webkit-scrollbar-track {
+  background: #F4F4F5;
+}
+html.dark ::-webkit-scrollbar-thumb {
   background: #27272a;
+  border-radius: 4px;
+}
+html.light ::-webkit-scrollbar-thumb {
+  background: #D4D4D8;
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
   background: #ea580c;
 }
 
-
 /* Leaflet maps custom dark theme overlay */
-.dark-map .leaflet-tile {
+html.dark .dark-map .leaflet-tile {
   filter: hue-rotate(180deg) invert(100%) contrast(90%) brightness(90%) saturate(120%);
 }
-.dark-map .leaflet-container {
+html.dark .dark-map .leaflet-container {
   background: #000000;
   font-family: var(--font-sans);
 }
-.dark-map .leaflet-bar a {
+html.dark .dark-map .leaflet-bar a {
   background-color: #121212 !important;
   color: #f8fafc !important;
   border-bottom: 1px solid #27272a !important;
 }
-.dark-map .leaflet-bar a:hover {
+html.dark .dark-map .leaflet-bar a:hover {
   background-color: #27272a !important;
 }
-.dark-map .leaflet-popup-content-wrapper {
+html.dark .dark-map .leaflet-popup-content-wrapper {
   background: #121212 !important;
   color: #f8fafc !important;
   border-radius: 12px !important;
   border: 1px solid #27272a;
   padding: 4px;
 }
-.dark-map .leaflet-popup-tip {
+html.dark .dark-map .leaflet-popup-tip {
   background: #121212 !important;
 }
 

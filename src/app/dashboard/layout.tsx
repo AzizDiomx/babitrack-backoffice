@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import Sidebar from '../../components/Sidebar';
 import { useRouter } from 'next/navigation';
@@ -12,6 +12,13 @@ export default function DashboardLayout({
 }) {
   const { loading, isAuthenticated } = useAuth();
   const router = useRouter();
+
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (!loading && !isAuthenticated) {
+      router.push('/login');
+    }
+  }, [loading, isAuthenticated, router]);
 
   // Si on est en train de charger, afficher un écran de chargement
   if (loading) {

@@ -10,7 +10,10 @@ import {
   TrendingDown, 
   RefreshCw,
   Clock,
-  CheckCircle2
+  CheckCircle2,
+  UserCheck,
+  Navigation,
+  User
 } from 'lucide-react';
 import { 
   AreaChart, 
@@ -32,10 +35,24 @@ interface DashboardStats {
   notificationsCount: number;
 }
 
+interface EmbarkationPassenger {
+  id: string;
+  nom: string;
+  prenom: string;
+  telephone: string;
+  scanTime: string;
+}
+
 interface EmbarkationSummary {
   vehicleId: string;
   immatriculation: string;
-  count: number;
+  capacite: number;
+  statut: string;
+  routeName: string;
+  routeType: string | null;
+  totalScans: number;
+  uniqueCount: number;
+  passengers: EmbarkationPassenger[];
 }
 
 // Dummy data for weekly boardings
@@ -149,6 +166,65 @@ export default function DashboardPage() {
         </div>
       </div>
 
+      {/* SaaS Expiration / Alert Banner */}
+      {(() => {
+        const expiresStr = (user?.company as any)?.subscriptionExpiresAt;
+        if (!expiresStr) return null;
+        const expiryDate = new Date(expiresStr);
+        const now = new Date();
+        const diffDays = Math.ceil((expiryDate.getTime() - now.getTime()) / (1000 * 3600 * 24));
+
+        if (diffDays < 0) {
+          return (
+            <div className="mb-6 rounded-2xl border border-red-500/40 bg-red-950/40 p-4 backdrop-blur-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-red-500/20 text-red-400 border border-red-500/30">
+                  <AlertTriangle className="h-5 w-5" />
+                </div>
+                <div>
+                  <h4 className="text-sm font-bold text-white">🚨 Licence SaaS Expirée</h4>
+                  <p className="text-xs text-red-200 mt-0.5">
+                    Votre abonnement BabiTrack a expiré le <span className="font-bold text-white">{expiryDate.toLocaleDateString('fr-FR')}</span>. Les ajouts de véhicules et d'abonnés sont bloqués.
+                  </p>
+                </div>
+              </div>
+              <a
+                href="/dashboard/subscription"
+                className="shrink-0 rounded-xl bg-red-600 hover:bg-red-500 text-white text-xs font-bold px-4 py-2.5 transition text-center"
+              >
+                Régulariser mon abonnement
+              </a>
+            </div>
+          );
+        }
+
+        if (diffDays <= 15) {
+          return (
+            <div className="mb-6 rounded-2xl border border-amber-500/40 bg-amber-950/30 p-4 backdrop-blur-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-500/20 text-amber-400 border border-amber-500/30">
+                  <Clock className="h-5 w-5" />
+                </div>
+                <div>
+                  <h4 className="text-sm font-bold text-white">⚠️ Échéance d'abonnement proche (J-{diffDays})</h4>
+                  <p className="text-xs text-amber-200 mt-0.5">
+                    Votre licence expire le <span className="font-bold text-white">{expiryDate.toLocaleDateString('fr-FR')}</span>. Pensez à renouveler pour éviter toute interruption de service.
+                  </p>
+                </div>
+              </div>
+              <a
+                href="/dashboard/subscription"
+                className="shrink-0 rounded-xl bg-orange-600 hover:bg-orange-500 text-white text-xs font-bold px-4 py-2.5 transition text-center shadow-md shadow-orange-600/20"
+              >
+                Renouveler mon abonnement
+              </a>
+            </div>
+          );
+        }
+
+        return null;
+      })()}
+
       {/* KPI Cards */}
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 mb-8">
         {kpis.map((kpi) => (
@@ -214,7 +290,7 @@ export default function DashboardPage() {
           <div className="flex items-center justify-between border-b border-zinc-800 pb-4 mb-4">
             <div>
               <h3 className="text-lg font-bold text-white">Embarquements du Jour</h3>
-              <p className="text-xs text-zinc-400 mt-0.5">Élèves enregistrés aujourd'hui</p>
+              <p className="text-xs text-zinc-400 mt-0.5">Suivi des usagers par car & trajet</p>
             </div>
             <Clock className="h-5 w-5 text-zinc-500" />
           </div>
@@ -222,36 +298,89 @@ export default function DashboardPage() {
           <div className="flex-1 overflow-y-auto pr-1 space-y-4">
             {embarkations.length === 0 ? (
               <div className="flex h-full flex-col items-center justify-center text-center p-6 text-zinc-500">
-                <CheckCircle2 className="h-10 w-10 text-zinc-755 mb-3" />
-                <p className="text-sm font-semibold">Aucun embarquement détecté</p>
-                <p className="text-xs text-zinc-605 mt-1">Les données s'actualiseront dès qu'un élève scannera son badge.</p>
+                <CheckCircle2 className="h-10 w-10 text-zinc-700 mb-3" />
+                <p className="text-sm font-semibold text-zinc-400">Aucun embarquement aujourd'hui</p>
+                <p className="text-xs text-zinc-500 mt-1">Les données s'actualiseront dès qu'un élève scannera son badge.</p>
               </div>
             ) : (
-              embarkations.map((emb) => (
-                <div 
-                  key={emb.vehicleId}
-                  className="flex items-center justify-between rounded-xl bg-black border border-zinc-800 p-4 hover:border-zinc-700 transition duration-150"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-orange-500/10 border border-orange-500/20">
-                      <Bus className="h-5 w-5 text-orange-500" />
+              embarkations.map((emb) => {
+                const percent = Math.min(100, Math.round((emb.uniqueCount / (emb.capacite || 1)) * 100));
+                
+                return (
+                  <div 
+                    key={emb.vehicleId}
+                    className="rounded-2xl bg-zinc-950 border border-zinc-800 p-4 transition duration-150 hover:border-zinc-700 space-y-3"
+                  >
+                    {/* Bus & Route info */}
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-500/10 border border-orange-500/20 text-orange-500">
+                          <Bus className="h-5 w-5" />
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm font-bold text-white tracking-wide">{emb.immatriculation}</span>
+                            <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold ${
+                              emb.statut === 'EN_SERVICE' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-zinc-800 text-zinc-400'
+                            }`}>
+                              {emb.statut === 'EN_SERVICE' ? 'EN SERVICE' : 'HORS SERVICE'}
+                            </span>
+                          </div>
+                          <p className="text-xs text-zinc-400 mt-0.5 flex items-center gap-1">
+                            <Navigation className="h-3 w-3 text-orange-500 shrink-0" />
+                            <span className="truncate max-w-[140px]">{emb.routeName}</span>
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Unique Passenger count badge */}
+                      <div className="text-right">
+                        <span className="inline-flex items-center gap-1.5 rounded-full bg-orange-500/10 px-2.5 py-1 text-xs font-bold text-orange-400 border border-orange-500/20">
+                          <UserCheck className="h-3.5 w-3.5" />
+                          {emb.uniqueCount} / {emb.capacite}
+                        </span>
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-sm font-bold text-zinc-200">
-                        {emb.immatriculation}
-                      </p>
-                      <p className="text-xs text-zinc-500">
-                        ID: {emb.vehicleId.slice(0, 8)}...
-                      </p>
+
+                    {/* Progress bar */}
+                    <div className="w-full bg-zinc-900 h-1.5 rounded-full overflow-hidden">
+                      <div 
+                        className="bg-gradient-to-r from-orange-500 to-amber-500 h-full rounded-full transition-all duration-300"
+                        style={{ width: `${percent}%` }}
+                      />
                     </div>
+
+                    {/* Scanned passengers list */}
+                    {emb.passengers.length > 0 ? (
+                      <div className="pt-2 border-t border-zinc-900 space-y-1.5">
+                        <p className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider mb-1">
+                          Passagers embarqués ({emb.uniqueCount})
+                        </p>
+                        {emb.passengers.map((p) => {
+                          const dateObj = new Date(p.scanTime);
+                          const timeFormatted = isNaN(dateObj.getTime()) 
+                            ? '--:--' 
+                            : dateObj.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+
+                          return (
+                            <div key={p.id} className="flex items-center justify-between text-xs bg-zinc-900/60 rounded-lg px-2.5 py-1.5">
+                              <div className="flex items-center gap-2">
+                                <User className="h-3.5 w-3.5 text-zinc-400" />
+                                <span className="font-semibold text-zinc-200">{p.prenom} {p.nom}</span>
+                              </div>
+                              <span className="text-[11px] font-mono text-orange-400 bg-orange-500/10 px-1.5 py-0.5 rounded border border-orange-500/20">
+                                {timeFormatted}
+                              </span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    ) : (
+                      <p className="text-xs text-zinc-600 italic pt-1">Aucun passager scanné sur ce trajet.</p>
+                    )}
                   </div>
-                  <div className="text-right">
-                    <span className="inline-flex items-center rounded-full bg-orange-500/10 px-2.5 py-1 text-xs font-bold text-orange-500 border border-orange-500/20">
-                      {emb.count} scans
-                    </span>
-                  </div>
-                </div>
-              ))
+                );
+              })
             )}
           </div>
         </div>
