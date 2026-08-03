@@ -267,7 +267,7 @@ export default function SubscriptionPage() {
                 const element = document.getElementById('available-plans');
                 element?.scrollIntoView({ behavior: 'smooth' });
               }}
-              className="flex items-center gap-2 rounded-xl bg-orange-600 hover:bg-orange-500 text-white px-5 py-2.5 text-xs font-bold transition duration-150 cursor-pointer shadow-md shadow-orange-600/15"
+              className="flex items-center gap-2 rounded-xl bg-orange-600 hover:bg-orange-500 text-white px-5 py-3 min-h-[44px] text-xs font-bold w-full sm:w-auto transition duration-150 cursor-pointer shadow-md shadow-orange-600/15"
             >
               <Zap className="h-4 w-4" />
               Surclasser / Renouveler
@@ -276,7 +276,7 @@ export default function SubscriptionPage() {
         </div>
 
         {/* Quotas & Usage Progress Gauges */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 pt-6">
           {/* Vehicles Meter */}
           <div className="rounded-2xl bg-[#121212] border border-zinc-800 p-4 space-y-2">
             <div className="flex items-center justify-between text-xs font-semibold">

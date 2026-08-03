@@ -495,7 +495,7 @@ export default function SuperAdminPage() {
         <div>
           <button
             onClick={() => setIsCompanyModalOpen(true)}
-            className="flex items-center justify-center gap-2 rounded-xl bg-orange-600 hover:bg-orange-500 text-white px-4 py-2.5 text-sm font-semibold transition duration-150 cursor-pointer shadow-md shadow-orange-600/10"
+            className="flex items-center justify-center gap-2 rounded-xl bg-orange-600 hover:bg-orange-500 text-white px-4 py-3 min-h-[44px] text-sm font-semibold w-full sm:w-auto transition duration-150 cursor-pointer shadow-md shadow-orange-600/10"
           >
             <Plus className="h-4.5 w-4.5" />
             Créer une compagnie
@@ -865,7 +865,7 @@ export default function SuperAdminPage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {saasPlans.map((plan, planIdx) => (
               <div
                 key={`saas-plan-${plan.id || plan.code || planIdx}`}
@@ -943,7 +943,7 @@ export default function SuperAdminPage() {
         /* Billing & Payments History View */
         <div className="space-y-6">
           {/* Revenue KPI banner */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             <div className="rounded-2xl border border-zinc-800 bg-[#121212] p-6 backdrop-blur-xl">
               <span className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Chiffre d'Affaires SaaS Cumulé</span>
               <p className="text-3xl font-bold text-white mt-2">

@@ -158,7 +158,7 @@ export default function DashboardPage() {
           <button
             onClick={fetchStats}
             disabled={refreshing}
-            className="flex items-center justify-center gap-2 rounded-xl bg-[#121212] px-4 py-2.5 text-sm font-semibold text-zinc-200 border border-zinc-800 hover:bg-zinc-800 transition duration-150 cursor-pointer disabled:opacity-50"
+            className="flex items-center justify-center gap-2 rounded-xl bg-[#121212] px-4 py-3 min-h-[44px] text-sm font-semibold w-full sm:w-auto text-zinc-200 border border-zinc-800 hover:bg-zinc-800 transition duration-150 cursor-pointer disabled:opacity-50"
           >
             <RefreshCw className={`h-4 w-4 text-zinc-400 ${refreshing ? 'animate-spin' : ''}`} />
             Actualiser
@@ -226,7 +226,7 @@ export default function DashboardPage() {
       })()}
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 mb-8">
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 mb-8">
         {kpis.map((kpi) => (
           <div
             key={kpi.name}

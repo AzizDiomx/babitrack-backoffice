@@ -195,7 +195,7 @@ export default function DriversPage() {
         <div>
           <button
             onClick={() => setIsAddModalOpen(true)}
-            className="flex items-center justify-center gap-2 rounded-xl bg-orange-600 hover:bg-orange-500 text-white px-4 py-2.5 text-sm font-semibold transition duration-150 cursor-pointer shadow-md shadow-orange-600/10"
+            className="flex items-center justify-center gap-2 rounded-xl bg-orange-600 hover:bg-orange-500 text-white px-4 py-3 min-h-[44px] text-sm font-semibold w-full sm:w-auto transition duration-150 cursor-pointer shadow-md shadow-orange-600/10"
           >
             <Plus className="h-4.5 w-4.5" />
             Ajouter un chauffeur

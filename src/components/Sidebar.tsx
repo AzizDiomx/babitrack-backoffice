@@ -18,14 +18,16 @@ import {
   UserCheck,
   Sun,
   Moon,
-  CreditCard
+  CreditCard,
+  X
 } from 'lucide-react';
 
 interface SidebarProps {
   sidebarOpen?: boolean;
+  onCloseMobile?: () => void;
 }
 
-export default function Sidebar({ sidebarOpen = true }: SidebarProps) {
+export default function Sidebar({ sidebarOpen = true, onCloseMobile }: SidebarProps) {
   const pathname = usePathname();
   const { user, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
@@ -42,23 +44,36 @@ export default function Sidebar({ sidebarOpen = true }: SidebarProps) {
   ];
 
   return (
-    <div className="flex h-full w-64 flex-col bg-[#121212] border-r border-zinc-800">
+    <div className="flex h-full w-full flex-col bg-[#121212] border-r border-zinc-800">
       {/* Brand Header */}
-      <div className="flex h-16 shrink-0 items-center gap-x-3 px-6 border-b border-zinc-800 bg-black">
-        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-orange-600 shadow-md shadow-orange-600/10">
-          <Bus className="h-5 w-5 text-white" />
-        </div>
-        <div>
-          <span className="text-md font-bold tracking-wider text-white uppercase">
-            BabiTrack
-          </span>
-          <div className="flex items-center gap-1">
-            <Shield className="h-3 w-3 text-orange-500" />
-            <span className="text-[9px] font-semibold text-zinc-500 uppercase tracking-widest">
-              SaaS Admin
+      <div className="flex h-16 shrink-0 items-center justify-between px-6 border-b border-zinc-800 bg-black">
+        <div className="flex items-center gap-x-3">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-orange-600 shadow-md shadow-orange-600/10">
+            <Bus className="h-5 w-5 text-white" />
+          </div>
+          <div>
+            <span className="text-md font-bold tracking-wider text-white uppercase">
+              BabiTrack
             </span>
+            <div className="flex items-center gap-1">
+              <Shield className="h-3 w-3 text-orange-500" />
+              <span className="text-[9px] font-semibold text-zinc-500 uppercase tracking-widest">
+                SaaS Admin
+              </span>
+            </div>
           </div>
         </div>
+
+        {/* Close Button on Mobile */}
+        {onCloseMobile && (
+          <button
+            onClick={onCloseMobile}
+            className="md:hidden flex h-11 w-11 items-center justify-center rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-white transition cursor-pointer"
+            aria-label="Fermer le menu"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        )}
       </div>
 
       {/* Navigation */}
@@ -72,11 +87,12 @@ export default function Sidebar({ sidebarOpen = true }: SidebarProps) {
                   <li key={item.name}>
                     <Link
                       href={item.href}
+                      onClick={onCloseMobile}
                       className={`
-                        group flex gap-x-3 rounded-xl p-3 text-sm font-semibold leading-6 transition duration-150 cursor-pointer
+                        group flex items-center gap-x-3 rounded-xl px-3.5 py-3 text-sm font-semibold min-h-[44px] leading-6 transition duration-150 cursor-pointer
                         ${isActive 
-                          ? 'bg-orange-600/10 text-orange-500' 
-                          : 'text-zinc-400 hover:bg-zinc-800/60 hover:text-white'
+                          ? 'bg-orange-600/10 text-orange-500 border border-orange-500/20' 
+                          : 'text-zinc-400 hover:bg-zinc-800/60 hover:text-white border border-transparent'
                         }
                       `}
                     >
