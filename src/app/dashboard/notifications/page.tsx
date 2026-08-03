@@ -12,6 +12,7 @@ import {
   CheckCircle
 } from 'lucide-react';
 import api from '../../../services/api';
+import NotificationModal, { NotificationState } from '../../../components/NotificationModal';
 
 interface Notification {
   id: string;
@@ -30,6 +31,12 @@ export default function NotificationsPage() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
+
+  const [notification, setNotification] = useState<NotificationState | null>(null);
+
+  const notify = (type: 'success' | 'error' | 'warning' | 'info', message: string, title?: string) => {
+    setNotification({ isOpen: true, type, message, title });
+  };
 
   // Form State
   const [title, setTitle] = useState('');
@@ -56,7 +63,7 @@ export default function NotificationsPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!title || !message) {
-      alert('Veuillez remplir le titre et le message.');
+      notify('warning', 'Veuillez remplir le titre et le message.');
       return;
     }
 
@@ -70,7 +77,7 @@ export default function NotificationsPage() {
         audience,
       });
 
-      alert('Notification envoyée avec succès.');
+      notify('success', 'Notification Push diffusée avec succès aux usagers.');
       setTitle('');
       setMessage('');
       setType('INFO');
@@ -79,7 +86,7 @@ export default function NotificationsPage() {
       fetchNotifications();
     } catch (err: any) {
       console.error(err);
-      alert(err.response?.data?.error || 'Erreur lors de l\'envoi de la notification.');
+      notify('error', err.response?.data?.error || 'Erreur lors de l\'envoi de la notification.');
     } finally {
       setSending(false);
     }
@@ -274,6 +281,9 @@ export default function NotificationsPage() {
           </div>
         </div>
       </div>
+
+      {/* Popups & Notifications */}
+      <NotificationModal notification={notification} onClose={() => setNotification(null)} />
     </div>
   );
 }

@@ -112,3 +112,69 @@ export default function NotificationModal({ notification, onClose }: Notificatio
     </div>
   );
 }
+
+export interface ConfirmState {
+  isOpen: boolean;
+  title: string;
+  message: string;
+  confirmLabel?: string;
+  cancelLabel?: string;
+  onConfirm: () => void;
+}
+
+interface ConfirmModalProps {
+  confirmState: ConfirmState | null;
+  onClose: () => void;
+}
+
+export function ConfirmModal({ confirmState, onClose }: ConfirmModalProps) {
+  if (!confirmState || !confirmState.isOpen) return null;
+
+  const { title, message, confirmLabel, cancelLabel, onConfirm } = confirmState;
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-md p-4 animate-in fade-in duration-200">
+      <div className="w-full max-w-md rounded-3xl border border-red-500/30 bg-[#121212] shadow-2xl p-6 relative backdrop-blur-xl space-y-4">
+        <button
+          onClick={onClose}
+          className="absolute right-4 top-4 text-zinc-400 hover:text-white transition cursor-pointer"
+        >
+          <X className="h-5 w-5" />
+        </button>
+
+        <div className="flex items-start gap-4">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-red-500/10 text-red-400 border border-red-500/20">
+            <AlertTriangle className="h-6 w-6" />
+          </div>
+
+          <div className="flex-1 pt-0.5">
+            <h4 className="text-base font-bold text-white tracking-wide">
+              {title}
+            </h4>
+            <p className="mt-1.5 text-xs text-zinc-300 leading-relaxed font-medium">
+              {message}
+            </p>
+          </div>
+        </div>
+
+        <div className="pt-3 flex justify-end gap-3 border-t border-zinc-800">
+          <button
+            onClick={onClose}
+            className="rounded-xl px-4 py-2.5 text-xs font-bold text-zinc-400 bg-zinc-800 hover:bg-zinc-700 transition cursor-pointer"
+          >
+            {cancelLabel || 'Annuler'}
+          </button>
+          <button
+            onClick={() => {
+              onConfirm();
+              onClose();
+            }}
+            className="rounded-xl px-4 py-2.5 text-xs font-bold text-white bg-red-600 hover:bg-red-500 transition cursor-pointer shadow-md shadow-red-600/20"
+          >
+            {confirmLabel || 'Confirmer'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}

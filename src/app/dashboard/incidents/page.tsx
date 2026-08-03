@@ -12,6 +12,7 @@ import {
   HelpCircle
 } from 'lucide-react';
 import api from '../../../services/api';
+import NotificationModal, { ConfirmModal, NotificationState, ConfirmState } from '../../../components/NotificationModal';
 
 interface Notification {
   id: string;
@@ -38,6 +39,13 @@ export default function IncidentsPage() {
   const [incidents, setIncidents] = useState<Notification[]>([]);
   const [troubledVehicles, setTroubledVehicles] = useState<Vehicle[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const [notification, setNotification] = useState<NotificationState | null>(null);
+  const [confirmState, setConfirmState] = useState<ConfirmState | null>(null);
+
+  const notify = (type: 'success' | 'error' | 'warning' | 'info', message: string, title?: string) => {
+    setNotification({ isOpen: true, type, message, title });
+  };
 
   const fetchData = async () => {
     try {
@@ -74,15 +82,22 @@ export default function IncidentsPage() {
   }, []);
 
   const handleResolveVehicle = async (id: string) => {
-    if (!confirm('Voulez-vous marquer cet incident de véhicule comme résolu (remettre HORS_SERVICE) ?')) return;
-    try {
-      await api.patch(`/api/vehicles/${id}/status`, { statut: 'HORS_SERVICE' });
-      alert('Statut du véhicule réinitialisé.');
-      fetchData();
-    } catch (err) {
-      console.error(err);
-      alert('Erreur lors de la résolution du statut.');
-    }
+    setConfirmState({
+      isOpen: true,
+      title: 'Résoudre cet incident ?',
+      message: 'Voulez-vous marquer cet incident de véhicule comme résolu (remettre HORS_SERVICE) ?',
+      confirmLabel: 'Résoudre l\'incident',
+      onConfirm: async () => {
+        try {
+          await api.patch(`/api/vehicles/${id}/status`, { statut: 'HORS_SERVICE' });
+          notify('success', 'Statut du véhicule réinitialisé.');
+          fetchData();
+        } catch (err) {
+          console.error(err);
+          notify('error', 'Erreur lors de la résolution du statut.');
+        }
+      },
+    });
   };
 
   const getIncidentIcon = (type: string) => {
@@ -233,6 +248,10 @@ export default function IncidentsPage() {
           </div>
         </div>
       </div>
+
+      {/* Popups & Notifications */}
+      <NotificationModal notification={notification} onClose={() => setNotification(null)} />
+      <ConfirmModal confirmState={confirmState} onClose={() => setConfirmState(null)} />
     </div>
   );
 }

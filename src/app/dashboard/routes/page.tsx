@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import api from '../../../services/api';
 import DynamicStopPickerMap from '../../../components/DynamicStopPickerMap';
+import NotificationModal, { ConfirmModal, NotificationState, ConfirmState } from '../../../components/NotificationModal';
 
 interface Stop {
   id?: string;
@@ -57,6 +58,13 @@ export default function RoutesPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingRouteId, setEditingRouteId] = useState<string | null>(null);
   const [selectedStopIndex, setSelectedStopIndex] = useState<number | null>(0);
+
+  const [notification, setNotification] = useState<NotificationState | null>(null);
+  const [confirmState, setConfirmState] = useState<ConfirmState | null>(null);
+
+  const notify = (type: 'success' | 'error' | 'warning' | 'info', message: string, title?: string) => {
+    setNotification({ isOpen: true, type, message, title });
+  };
   
   // Form State
   const [nom, setNom] = useState('');
@@ -135,7 +143,7 @@ export default function RoutesPage() {
   // Remove stop row
   const removeStopRow = (index: number) => {
     if (stops.length <= 1) {
-      alert('Un trajet doit comporter au moins un arrêt.');
+      notify('warning', 'Un trajet doit comporter au moins un arrêt.');
       return;
     }
     const filtered = stops.filter((_, idx) => idx !== index);
@@ -200,20 +208,20 @@ export default function RoutesPage() {
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!nom) {
-      alert('Veuillez spécifier le nom du trajet.');
+      notify('warning', 'Veuillez spécifier le nom du trajet.');
       return;
     }
 
     // Valider les coordonnées des arrêts
     for (const stop of stops) {
       if (!stop.nom || !stop.latitude || !stop.longitude) {
-        alert('Veuillez renseigner tous les champs pour chaque arrêt.');
+        notify('warning', 'Veuillez renseigner tous les champs pour chaque arrêt.');
         return;
       }
       const lat = parseFloat(stop.latitude);
       const lng = parseFloat(stop.longitude);
       if (isNaN(lat) || isNaN(lng)) {
-        alert(`Coordonnées invalides pour l'arrêt: ${stop.nom}`);
+        notify('warning', `Coordonnées invalides pour l'arrêt: ${stop.nom}`);
         return;
       }
     }
@@ -233,31 +241,37 @@ export default function RoutesPage() {
 
       if (editingRouteId) {
         await api.put(`/api/routes/${editingRouteId}`, payload);
-        alert('Trajet et points relais mis à jour avec succès.');
+        notify('success', 'Trajet et points relais mis à jour avec succès.');
       } else {
         await api.post('/api/routes', payload);
-        alert('Trajet créé avec succès.');
+        notify('success', 'Trajet créé avec succès.');
       }
 
       setIsModalOpen(false);
       fetchData();
     } catch (err: any) {
       console.error(err);
-      alert(err.response?.data?.error || 'Erreur lors de la sauvegarde du trajet.');
+      notify('error', err.response?.data?.error || 'Erreur lors de la sauvegarde du trajet.');
     }
   };
 
   const handleDeleteRoute = async (routeId: string, routeName: string) => {
-    if (!window.confirm(`Êtes-vous sûr de vouloir supprimer le trajet "${routeName}" ?`)) return;
-
-    try {
-      await api.delete(`/api/routes/${routeId}`);
-      alert('Trajet supprimé.');
-      fetchData();
-    } catch (err: any) {
-      console.error(err);
-      alert(err.response?.data?.error || 'Impossible de supprimer le trajet.');
-    }
+    setConfirmState({
+      isOpen: true,
+      title: 'Supprimer ce trajet ?',
+      message: `Êtes-vous sûr de vouloir supprimer le trajet "${routeName}" ? Cette action est irréversible.`,
+      confirmLabel: 'Supprimer le trajet',
+      onConfirm: async () => {
+        try {
+          await api.delete(`/api/routes/${routeId}`);
+          notify('success', 'Trajet supprimé avec succès.');
+          fetchData();
+        } catch (err: any) {
+          console.error(err);
+          notify('error', err.response?.data?.error || 'Impossible de supprimer le trajet.');
+        }
+      },
+    });
   };
 
   return (
@@ -601,6 +615,10 @@ export default function RoutesPage() {
           </div>
         </div>
       )}
+
+      {/* Popups & Notifications */}
+      <NotificationModal notification={notification} onClose={() => setNotification(null)} />
+      <ConfirmModal confirmState={confirmState} onClose={() => setConfirmState(null)} />
     </div>
   );
 }

@@ -15,6 +15,7 @@ import {
   Shield
 } from 'lucide-react';
 import api from '../../../services/api';
+import NotificationModal, { ConfirmModal, NotificationState, ConfirmState } from '../../../components/NotificationModal';
 
 interface Driver {
   id: string;
@@ -32,6 +33,13 @@ export default function DriversPage() {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   
+  const [notification, setNotification] = useState<NotificationState | null>(null);
+  const [confirmState, setConfirmState] = useState<ConfirmState | null>(null);
+
+  const notify = (type: 'success' | 'error' | 'warning' | 'info', message: string, title?: string) => {
+    setNotification({ isOpen: true, type, message, title });
+  };
+
   // Modals state
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -94,7 +102,7 @@ export default function DriversPage() {
   const handleAddSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!nom || !prenom || !telephone || !password) {
-      alert('Veuillez remplir tous les champs obligatoires.');
+      notify('warning', 'Veuillez remplir tous les champs obligatoires.');
       return;
     }
 
@@ -107,19 +115,19 @@ export default function DriversPage() {
         password,
         role: 'CHAUFFEUR',
       });
-      alert('Chauffeur enregistré avec succès.');
+      notify('success', 'Chauffeur enregistré avec succès.');
       closeAddModal();
       fetchDrivers();
     } catch (err: any) {
       console.error(err);
-      alert(err.response?.data?.error || 'Erreur lors de la création du chauffeur.');
+      notify('error', err.response?.data?.error || 'Erreur lors de la création du chauffeur.');
     }
   };
 
   const handleEditSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!nom || !prenom || !telephone) {
-      alert('Veuillez remplir tous les champs obligatoires.');
+      notify('warning', 'Veuillez remplir tous les champs obligatoires.');
       return;
     }
 
@@ -135,26 +143,32 @@ export default function DriversPage() {
       }
 
       await api.patch(`/api/users/${selectedDriver?.id}`, payload);
-      alert('Informations du chauffeur mises à jour.');
+      notify('success', 'Informations du chauffeur mises à jour.');
       closeEditModal();
       fetchDrivers();
     } catch (err: any) {
       console.error(err);
-      alert(err.response?.data?.error || 'Erreur lors de la modification du chauffeur.');
+      notify('error', err.response?.data?.error || 'Erreur lors de la modification du chauffeur.');
     }
   };
 
   const handleDeleteClick = async (id: string, fullName: string) => {
-    if (confirm(`Êtes-vous sûr de vouloir supprimer le compte du chauffeur ${fullName} ? Cette action libérera automatiquement tout véhicule auquel il est associé.`)) {
-      try {
-        await api.delete(`/api/users/${id}`);
-        alert('Chauffeur supprimé avec succès.');
-        fetchDrivers();
-      } catch (err: any) {
-        console.error(err);
-        alert(err.response?.data?.error || 'Erreur lors de la suppression du chauffeur.');
-      }
-    }
+    setConfirmState({
+      isOpen: true,
+      title: 'Supprimer ce chauffeur ?',
+      message: `Êtes-vous sûr de vouloir supprimer le compte du chauffeur ${fullName} ? Cette action libérera automatiquement tout véhicule auquel il est associé.`,
+      confirmLabel: 'Supprimer le compte',
+      onConfirm: async () => {
+        try {
+          await api.delete(`/api/users/${id}`);
+          notify('success', 'Compte chauffeur supprimé avec succès.');
+          fetchDrivers();
+        } catch (err: any) {
+          console.error(err);
+          notify('error', err.response?.data?.error || 'Erreur lors de la suppression du chauffeur.');
+        }
+      },
+    });
   };
 
   // Filtered drivers based on search query
@@ -500,6 +514,10 @@ export default function DriversPage() {
           </div>
         </div>
       )}
+
+      {/* Popups & Notifications */}
+      <NotificationModal notification={notification} onClose={() => setNotification(null)} />
+      <ConfirmModal confirmState={confirmState} onClose={() => setConfirmState(null)} />
     </div>
   );
 }

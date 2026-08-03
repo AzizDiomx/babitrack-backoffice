@@ -19,11 +19,13 @@ import {
 } from 'lucide-react';
 import api from '../../../services/api';
 import { useAuth } from '../../../context/AuthContext';
+import NotificationModal, { NotificationState } from '../../../components/NotificationModal';
 
 interface CompanySubscriptionInfo {
   id: string;
   name: string;
   plan: string;
+  billingCycle: string;
   status: string;
   subscriptionExpiresAt: string | null;
   maxVehicles: number;
@@ -31,7 +33,6 @@ interface CompanySubscriptionInfo {
   _count: {
     vehicles: number;
     users: number;
-    routes: number;
   };
 }
 
@@ -45,6 +46,12 @@ export default function SubscriptionPage() {
   const [paymentRef, setPaymentRef] = useState('');
   const [paymentHistory, setPaymentHistory] = useState<any[]>([]);
   const [saasPlans, setSaasPlans] = useState<any[]>([]);
+
+  const [notification, setNotification] = useState<NotificationState | null>(null);
+
+  const notify = (type: 'success' | 'error' | 'warning' | 'info', message: string, title?: string) => {
+    setNotification({ isOpen: true, type, message, title });
+  };
 
   const fetchSubscriptionInfo = async () => {
     try {
@@ -602,7 +609,7 @@ export default function SubscriptionPage() {
                   <button
                     onClick={async () => {
                       if (!paymentRef.trim()) {
-                        alert('Veuillez saisir le N° de transaction ou la référence de reçu Mobile Money / Virement.');
+                        notify('warning', 'Veuillez saisir le N° de transaction ou la référence de reçu Mobile Money / Virement.');
                         return;
                       }
 
@@ -623,7 +630,7 @@ export default function SubscriptionPage() {
                         setPaymentSubmitted(true);
                       } catch (err: any) {
                         console.error(err);
-                        alert(err.response?.data?.error || 'Erreur lors de la soumission de la preuve de paiement.');
+                        notify('error', err.response?.data?.error || 'Erreur lors de la soumission de la preuve de paiement.');
                       }
                     }}
                     className="flex-1 py-2.5 rounded-xl bg-orange-600 hover:bg-orange-500 text-white text-xs font-bold transition shadow-md shadow-orange-600/20 cursor-pointer"
@@ -652,6 +659,9 @@ export default function SubscriptionPage() {
           </div>
         </div>
       )}
+
+      {/* Popups & Notifications */}
+      <NotificationModal notification={notification} onClose={() => setNotification(null)} />
     </div>
   );
 }

@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import api from '../../../services/api';
 import { useAuth } from '../../../context/AuthContext';
+import NotificationModal, { ConfirmModal, NotificationState, ConfirmState } from '../../../components/NotificationModal';
 
 interface User {
   id: string;
@@ -30,8 +31,10 @@ interface User {
   email: string | null;
   role: string;
   statut: string;
-  qrToken: string;
-  createdAt: string;
+  typeSubscription: string | null;
+  subscriptionExpiresAt: string | null;
+  qrCodeUrl: string | null;
+  createdAt?: string;
 }
 
 export default function SubscribersPage() {
@@ -40,6 +43,14 @@ export default function SubscribersPage() {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('ALL');
+  const [filterStatut, setFilterStatut] = useState<string>('TOUS');
+
+  const [notification, setNotification] = useState<NotificationState | null>(null);
+  const [confirmState, setConfirmState] = useState<ConfirmState | null>(null);
+
+  const notify = (type: 'success' | 'error' | 'warning' | 'info', message: string, title?: string) => {
+    setNotification({ isOpen: true, type, message, title });
+  };
   
   // Modals state
   const [isActivateModalOpen, setIsActivateModalOpen] = useState(false);
@@ -96,27 +107,41 @@ export default function SubscribersPage() {
 
   // Actions
   const handleResetQr = async (id: string) => {
-    if (!confirm('Voulez-vous vraiment réinitialiser le code QR de cet abonné ?')) return;
-    try {
-      await api.patch(`/api/users/${id}/qr/reset`);
-      alert('Code QR réinitialisé avec succès.');
-      fetchSubscribers();
-    } catch (err) {
-      console.error(err);
-      alert('Erreur lors de la réinitialisation du code QR.');
-    }
+    setConfirmState({
+      isOpen: true,
+      title: 'Réinitialiser le code QR ?',
+      message: 'Voulez-vous vraiment réinitialiser le code QR de cet abonné ? Un nouveau passe digital unique sera généré.',
+      confirmLabel: 'Réinitialiser le QR',
+      onConfirm: async () => {
+        try {
+          await api.patch(`/api/users/${id}/qr/reset`);
+          notify('success', 'Code QR réinitialisé avec succès.');
+          fetchSubscribers();
+        } catch (err) {
+          console.error(err);
+          notify('error', 'Erreur lors de la réinitialisation du code QR.');
+        }
+      },
+    });
   };
 
   const handleSuspend = async (id: string) => {
-    if (!confirm('Voulez-vous suspendre l\'abonnement de cet usager ?')) return;
-    try {
-      await api.patch(`/api/users/${id}/subscription`, { statut: 'SUSPENDU' });
-      alert('Abonnement suspendu.');
-      fetchSubscribers();
-    } catch (err) {
-      console.error(err);
-      alert('Erreur lors de la suspension de l\'abonnement.');
-    }
+    setConfirmState({
+      isOpen: true,
+      title: 'Suspendre l\'abonnement ?',
+      message: 'Voulez-vous vraiment suspendre l\'abonnement de cet usager ? Son accès au bus sera temporairement bloqué.',
+      confirmLabel: 'Suspendre l\'accès',
+      onConfirm: async () => {
+        try {
+          await api.patch(`/api/users/${id}/subscription`, { statut: 'SUSPENDU' });
+          notify('success', 'Abonnement suspendu.');
+          fetchSubscribers();
+        } catch (err) {
+          console.error(err);
+          notify('error', 'Erreur lors de la suspension de l\'abonnement.');
+        }
+      },
+    });
   };
 
   const openActivateModal = (sub: User) => {
@@ -136,20 +161,20 @@ export default function SubscribersPage() {
         dateDebut: new Date(dateDebut).toISOString(),
         dateFin: new Date(dateFin).toISOString(),
       });
-      alert('Abonnement activé avec succès.');
+      notify('success', 'Abonnement activé avec succès.');
       setIsActivateModalOpen(false);
       setSelectedUser(null);
       fetchSubscribers();
     } catch (err) {
       console.error(err);
-      alert('Erreur lors de l\'activation de l\'abonnement.');
+      notify('error', 'Erreur lors de l\'activation de l\'abonnement.');
     }
   };
 
   const handleAddSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!nom || !prenom || !telephone || !password) {
-      alert('Veuillez remplir tous les champs obligatoires.');
+      notify('warning', 'Veuillez remplir tous les champs obligatoires.');
       return;
     }
 
@@ -163,7 +188,7 @@ export default function SubscribersPage() {
         role: 'USAGER',
         statut: 'EN_ATTENTE',
       });
-      alert('Abonné créé avec succès.');
+      notify('success', 'Abonné créé avec succès.');
       setIsAddModalOpen(false);
       setNom('');
       setPrenom('');
@@ -173,7 +198,7 @@ export default function SubscribersPage() {
       fetchSubscribers();
     } catch (err: any) {
       console.error(err);
-      alert(err.response?.data?.error || 'Erreur lors de la création de l\'abonné.');
+      notify('error', err.response?.data?.error || 'Erreur lors de la création de l\'abonné.');
     }
   };
 
@@ -351,7 +376,7 @@ export default function SubscribersPage() {
                                 {sub.prenom} {sub.nom}
                               </p>
                               <p className="text-xs text-zinc-500">
-                                Inscrit le {new Date(sub.createdAt).toLocaleDateString('fr-FR')}
+                                Inscrit le {sub.createdAt ? new Date(sub.createdAt).toLocaleDateString('fr-FR') : 'Récemment'}
                               </p>
                             </div>
                           </div>
@@ -706,6 +731,10 @@ export default function SubscribersPage() {
           </div>
         </div>
       )}
+
+      {/* Popups & Notifications */}
+      <NotificationModal notification={notification} onClose={() => setNotification(null)} />
+      <ConfirmModal confirmState={confirmState} onClose={() => setConfirmState(null)} />
     </div>
   );
 }

@@ -14,6 +14,7 @@ import {
   Trash2
 } from 'lucide-react';
 import api, { API_URL } from '../../../services/api';
+import NotificationModal, { ConfirmModal, NotificationState, ConfirmState } from '../../../components/NotificationModal';
 
 interface Chauffeur {
   id: string;
@@ -48,25 +49,28 @@ const PRESETS_VEHICLES = [
   },
   {
     id: 'shuttle',
-    name: 'Minibus Navette',
+    name: 'Minibus Blanc',
+    url: 'https://images.unsplash.com/photo-1570125909232-eb263c188f7e?w=500&auto=format&fit=crop&q=60',
+  },
+  {
+    id: 'coach',
+    name: 'Car VTC Grand Confort',
     url: 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=500&auto=format&fit=crop&q=60',
   },
-  {
-    id: 'van',
-    name: 'Minivan Urbain',
-    url: 'https://images.unsplash.com/photo-1518655061766-48f23af93e77?w=500&auto=format&fit=crop&q=60',
-  },
-  {
-    id: 'electric',
-    name: 'Car Moderne',
-    url: 'https://images.unsplash.com/photo-1570125909232-eb263c188f7e?w=500&auto=format&fit=crop&q=60',
-  }
 ];
 
 export default function VehiclesPage() {
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
-  const [chauffeurs, setChauffeurs] = useState<UserDropdownItem[]>([]);
+  const [chauffeurs, setChauffeurs] = useState<Chauffeur[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const [notification, setNotification] = useState<NotificationState | null>(null);
+  const [confirmState, setConfirmState] = useState<ConfirmState | null>(null);
+
+  const notify = (type: 'success' | 'error' | 'warning' | 'info', message: string, title?: string) => {
+    setNotification({ isOpen: true, type, message, title });
+  };
+
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editingVehicleId, setEditingVehicleId] = useState<string | null>(null);
@@ -101,10 +105,10 @@ export default function VehiclesPage() {
       });
       setSelectedImageUrl(res.data.imageUrl);
       setCustomImageUrl(res.data.imageUrl);
-      alert('Image téléversée avec succès.');
+      notify('success', 'Image téléversée avec succès.');
     } catch (err: any) {
       console.error(err);
-      alert(err.response?.data?.error || 'Erreur lors du téléversement de l\'image.');
+      notify('error', err.response?.data?.error || 'Erreur lors du téléversement de l\'image.');
     } finally {
       setUploadingImage(false);
     }
@@ -164,7 +168,7 @@ export default function VehiclesPage() {
   const handleAddSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!immatriculation) {
-      alert('Veuillez spécifier l\'immatriculation.');
+      notify('warning', 'Veuillez spécifier l\'immatriculation.');
       return;
     }
 
@@ -175,19 +179,19 @@ export default function VehiclesPage() {
         chauffeurId: selectedChauffeurId || null,
         imageUrl: selectedImageUrl,
       });
-      alert('Véhicule enregistré avec succès.');
+      notify('success', 'Véhicule enregistré avec succès.');
       closeAddModal();
       fetchData();
     } catch (err: any) {
       console.error(err);
-      alert(err.response?.data?.error || 'Erreur lors de la création du véhicule.');
+      notify('error', err.response?.data?.error || 'Erreur lors de la création du véhicule.');
     }
   };
 
   const handleEditSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!immatriculation) {
-      alert('Veuillez spécifier l\'immatriculation.');
+      notify('warning', 'Veuillez spécifier l\'immatriculation.');
       return;
     }
 
@@ -198,26 +202,32 @@ export default function VehiclesPage() {
         chauffeurId: selectedChauffeurId || '',
         imageUrl: selectedImageUrl,
       });
-      alert('Véhicule modifié avec succès.');
+      notify('success', 'Véhicule modifié avec succès.');
       closeEditModal();
       fetchData();
     } catch (err: any) {
       console.error(err);
-      alert(err.response?.data?.error || 'Erreur lors de la modification du véhicule.');
+      notify('error', err.response?.data?.error || 'Erreur lors de la modification du véhicule.');
     }
   };
 
   const handleDeleteClick = async (id: string, immat: string) => {
-    if (confirm(`Êtes-vous sûr de vouloir supprimer le véhicule ${immat} ? Cette action est irréversible.`)) {
-      try {
-        await api.delete(`/api/vehicles/${id}`);
-        alert('Véhicule supprimé avec succès.');
-        fetchData();
-      } catch (err: any) {
-        console.error(err);
-        alert(err.response?.data?.error || 'Erreur lors de la suppression du véhicule.');
-      }
-    }
+    setConfirmState({
+      isOpen: true,
+      title: 'Supprimer ce véhicule ?',
+      message: `Êtes-vous sûr de vouloir supprimer le véhicule ${immat} ? Cette action est irréversible.`,
+      confirmLabel: 'Supprimer définitivement',
+      onConfirm: async () => {
+        try {
+          await api.delete(`/api/vehicles/${id}`);
+          notify('success', 'Véhicule supprimé avec succès.');
+          fetchData();
+        } catch (err: any) {
+          console.error(err);
+          notify('error', err.response?.data?.error || 'Erreur lors de la suppression du véhicule.');
+        }
+      },
+    });
   };
 
   const getVehicleStatusBadge = (status: string) => {
@@ -657,6 +667,10 @@ export default function VehiclesPage() {
           </div>
         </div>
       )}
+
+      {/* Popups & Notifications */}
+      <NotificationModal notification={notification} onClose={() => setNotification(null)} />
+      <ConfirmModal confirmState={confirmState} onClose={() => setConfirmState(null)} />
     </div>
   );
 }
