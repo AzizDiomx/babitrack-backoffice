@@ -7,7 +7,7 @@ import { io as SocketIOClient } from 'socket.io-client';
 import api, { API_URL } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 
-import { Maximize2, Minimize2 } from 'lucide-react';
+import { Maximize2, Minimize2, Search, MapPin, Loader2 } from 'lucide-react';
 
 // Correction des icônes Leaflet par défaut
 const defaultIcon = L.icon({
@@ -105,7 +105,36 @@ export default function Map() {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [mapProvider, setMapProvider] = useState<MapProvider>('google-hybrid');
   const [routeFilter, setRouteFilter] = useState<RouteFilter>('ALL');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isSearching, setIsSearching] = useState(false);
   const socketRef = useRef<any>(null);
+
+  const handleSearchLocation = async () => {
+    if (!searchQuery.trim()) return;
+    try {
+      setIsSearching(true);
+      const query = searchQuery.toLowerCase().includes('abidjan') || searchQuery.toLowerCase().includes('côte d\'ivoire')
+        ? searchQuery
+        : `${searchQuery}, Abidjan, Côte d'Ivoire`;
+
+      const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1`, {
+        headers: {
+          'Accept-Language': 'fr',
+        },
+      });
+      const data = await res.json();
+
+      if (data && data.length > 0) {
+        const lat = parseFloat(parseFloat(data[0].lat).toFixed(6));
+        const lng = parseFloat(parseFloat(data[0].lon).toFixed(6));
+        setMapCenter([lat, lng]);
+      }
+    } catch (err) {
+      console.error('Erreur recherche de lieu:', err);
+    } finally {
+      setIsSearching(false);
+    }
+  };
 
   const fetchRoutePaths = async (loadedRoutes: Route[]) => {
     const paths: { [routeId: string]: [number, number][] } = {};
@@ -257,109 +286,141 @@ export default function Map() {
       }
     >
       {/* Top Map Controls */}
-      <div className="absolute top-4 right-4 z-[1000] flex items-center gap-2 flex-wrap justify-end">
-        {/* Route Type Filter Selector */}
-        <div className="flex items-center gap-1 bg-slate-900/90 backdrop-blur border border-slate-800 rounded-xl p-1 shadow-lg">
+      <div className="absolute top-3 left-3 right-3 z-[1000] flex items-center justify-between gap-2 flex-wrap sm:flex-nowrap pointer-events-auto">
+        {/* Search Location Bar */}
+        <div className="relative flex-1 min-w-[200px] max-w-md">
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <MapPin className="h-4 w-4 text-orange-500" />
+          </div>
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                e.stopPropagation();
+                handleSearchLocation();
+              }
+            }}
+            placeholder="Rechercher un lieu (ex: Riviera, St Jean, Yopougon...)"
+            className="w-full pl-9 pr-9 py-2 bg-zinc-950/95 backdrop-blur border border-zinc-800 rounded-xl text-xs text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-orange-500 shadow-lg"
+          />
           <button
             type="button"
-            onClick={() => setRouteFilter('ALL')}
-            className={`px-2.5 py-1 text-[11px] font-bold rounded-lg transition cursor-pointer ${
-              routeFilter === 'ALL'
-                ? 'bg-zinc-700 text-white'
-                : 'text-slate-400 hover:text-slate-200'
-            }`}
-            title="Afficher les deux trajets (Aller et Retour)"
+            onClick={handleSearchLocation}
+            disabled={isSearching}
+            className="absolute inset-y-0 right-0 pr-3 flex items-center text-zinc-400 hover:text-orange-500 transition cursor-pointer"
           >
-            🔄 Les deux
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setRouteFilter('MATIN')}
-            className={`px-2.5 py-1 text-[11px] font-bold rounded-lg transition cursor-pointer ${
-              routeFilter === 'MATIN'
-                ? 'bg-orange-600 text-white'
-                : 'text-slate-400 hover:text-slate-200'
-            }`}
-            title="Afficher uniquement le trajet Aller (Matin)"
-          >
-            🌅 Aller (Matin)
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setRouteFilter('SOIR')}
-            className={`px-2.5 py-1 text-[11px] font-bold rounded-lg transition cursor-pointer ${
-              routeFilter === 'SOIR'
-                ? 'bg-blue-600 text-white'
-                : 'text-slate-400 hover:text-slate-200'
-            }`}
-            title="Afficher uniquement le trajet Retour (Soir)"
-          >
-            🌇 Retour (Soir)
+            {isSearching ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Search className="h-3.5 w-3.5" />}
           </button>
         </div>
 
-        {/* Map Provider Selector */}
-        <div className="flex items-center gap-1 bg-slate-900/90 backdrop-blur border border-slate-800 rounded-xl p-1 shadow-lg">
-          <button
-            type="button"
-            onClick={() => setMapProvider('google-hybrid')}
-            className={`px-2.5 py-1 text-[11px] font-bold rounded-lg transition cursor-pointer ${
-              mapProvider === 'google-hybrid'
-                ? 'bg-orange-600 text-white'
-                : 'text-slate-400 hover:text-slate-200'
-            }`}
-            title="Google Maps Imagerie Satellite HD avec repères"
-          >
-            🛰️ Satellite HD
-          </button>
+        <div className="flex items-center gap-2 flex-wrap justify-end">
+          {/* Route Type Filter Selector */}
+          <div className="flex items-center gap-1 bg-zinc-950/95 backdrop-blur border border-zinc-800 rounded-xl p-1 shadow-lg">
+            <button
+              type="button"
+              onClick={() => setRouteFilter('ALL')}
+              className={`px-2.5 py-1 text-[11px] font-bold rounded-lg transition cursor-pointer ${
+                routeFilter === 'ALL'
+                  ? 'bg-orange-600 text-white'
+                  : 'text-zinc-400 hover:text-zinc-200'
+              }`}
+              title="Afficher les deux trajets (Aller et Retour)"
+            >
+              🔄 Les deux
+            </button>
 
-          <button
-            type="button"
-            onClick={() => setMapProvider('google-roadmap')}
-            className={`px-2.5 py-1 text-[11px] font-bold rounded-lg transition cursor-pointer ${
-              mapProvider === 'google-roadmap'
-                ? 'bg-orange-600 text-white'
-                : 'text-slate-400 hover:text-slate-200'
-            }`}
-            title="Google Maps Routier HD"
-          >
-            🗺️ Google Plan
-          </button>
+            <button
+              type="button"
+              onClick={() => setRouteFilter('MATIN')}
+              className={`px-2.5 py-1 text-[11px] font-bold rounded-lg transition cursor-pointer ${
+                routeFilter === 'MATIN'
+                  ? 'bg-orange-600 text-white'
+                  : 'text-zinc-400 hover:text-zinc-200'
+              }`}
+              title="Afficher uniquement le trajet Aller (Matin)"
+            >
+              🌅 Aller (Matin)
+            </button>
 
+            <button
+              type="button"
+              onClick={() => setRouteFilter('SOIR')}
+              className={`px-2.5 py-1 text-[11px] font-bold rounded-lg transition cursor-pointer ${
+                routeFilter === 'SOIR'
+                  ? 'bg-blue-600 text-white'
+                  : 'text-zinc-400 hover:text-zinc-200'
+              }`}
+              title="Afficher uniquement le trajet Retour (Soir)"
+            >
+              🌇 Retour (Soir)
+            </button>
+          </div>
+
+          {/* Map Provider Selector (Satellite HD / Google Plan / OpenStreet) */}
+          <div className="flex items-center gap-1 bg-zinc-950/95 backdrop-blur border border-zinc-800 rounded-xl p-1 shadow-lg">
+            <button
+              type="button"
+              onClick={() => setMapProvider('google-hybrid')}
+              className={`px-2.5 py-1 text-[11px] font-bold rounded-lg transition cursor-pointer ${
+                mapProvider === 'google-hybrid'
+                  ? 'bg-orange-600 text-white'
+                  : 'text-zinc-400 hover:text-zinc-200'
+              }`}
+              title="Google Maps Imagerie Satellite HD avec repères"
+            >
+              🛰️ Satellite HD
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setMapProvider('google-roadmap')}
+              className={`px-2.5 py-1 text-[11px] font-bold rounded-lg transition cursor-pointer ${
+                mapProvider === 'google-roadmap'
+                  ? 'bg-orange-600 text-white'
+                  : 'text-zinc-400 hover:text-zinc-200'
+              }`}
+              title="Google Maps Routier HD"
+            >
+              🗺️ Google Plan
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setMapProvider('osm')}
+              className={`px-2.5 py-1 text-[11px] font-bold rounded-lg transition cursor-pointer ${
+                mapProvider === 'osm'
+                  ? 'bg-orange-600 text-white'
+                  : 'text-zinc-400 hover:text-zinc-200'
+              }`}
+              title="OpenStreetMap Standard"
+            >
+              🌐 OpenStreet
+            </button>
+          </div>
+
+          {/* Fullscreen Toggle Button */}
           <button
             type="button"
-            onClick={() => setMapProvider('osm')}
-            className={`px-2.5 py-1 text-[11px] font-bold rounded-lg transition cursor-pointer ${
-              mapProvider === 'osm'
-                ? 'bg-orange-600 text-white'
-                : 'text-slate-400 hover:text-slate-200'
-            }`}
-            title="OpenStreetMap Standard"
+            onClick={() => setIsFullscreen((prev) => !prev)}
+            className="bg-zinc-950/95 hover:bg-zinc-900 backdrop-blur border border-zinc-800 rounded-xl px-3 py-2 text-xs font-bold text-zinc-200 flex items-center gap-2 shadow-lg cursor-pointer transition"
+            title={isFullscreen ? 'Quitter le plein écran' : 'Plein écran'}
           >
-            🌐 OpenStreet
+            {isFullscreen ? (
+              <>
+                <Minimize2 className="h-4 w-4 text-orange-400" />
+                <span className="hidden sm:inline">Réduire</span>
+              </>
+            ) : (
+              <>
+                <Maximize2 className="h-4 w-4 text-orange-400" />
+                <span className="hidden sm:inline">Plein écran</span>
+              </>
+            )}
           </button>
         </div>
-
-        {/* Fullscreen Toggle Button */}
-        <button
-          onClick={() => setIsFullscreen((prev) => !prev)}
-          className="bg-slate-900/90 hover:bg-slate-800 backdrop-blur border border-slate-800 rounded-xl px-3 py-2 text-xs font-bold text-slate-200 flex items-center gap-2 shadow-lg cursor-pointer transition"
-          title={isFullscreen ? 'Quitter le plein écran' : 'Plein écran'}
-        >
-          {isFullscreen ? (
-            <>
-              <Minimize2 className="h-4 w-4 text-orange-500" />
-              <span className="hidden sm:inline">Réduire</span>
-            </>
-          ) : (
-            <>
-              <Maximize2 className="h-4 w-4 text-orange-500" />
-              <span className="hidden sm:inline">Plein écran</span>
-            </>
-          )}
-        </button>
       </div>
 
       <MapContainer

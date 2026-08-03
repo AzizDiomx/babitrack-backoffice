@@ -43,8 +43,8 @@ export default function SubscriptionPage() {
   const [billingCycle, setBillingCycle] = useState<'MENSUEL' | 'ANNUEL'>('ANNUEL');
   const [paymentSubmitted, setPaymentSubmitted] = useState(false);
   const [paymentRef, setPaymentRef] = useState('');
-
   const [paymentHistory, setPaymentHistory] = useState<any[]>([]);
+  const [saasPlans, setSaasPlans] = useState<any[]>([]);
 
   const fetchSubscriptionInfo = async () => {
     try {
@@ -67,39 +67,52 @@ export default function SubscriptionPage() {
     }
   };
 
+  const fetchSaasPlans = async () => {
+    try {
+      const res = await api.get('/api/saas-plans');
+      if (res.data && Array.isArray(res.data) && res.data.length > 0) {
+        setSaasPlans(res.data);
+      }
+    } catch (err) {
+      console.error('Erreur chargement offres SaaS dynamiques:', err);
+    }
+  };
+
   useEffect(() => {
     fetchSubscriptionInfo();
     fetchPaymentHistory();
+    fetchSaasPlans();
   }, []);
 
-  const plans = [
+  // Static Fallback Plans if DB empty
+  const defaultStaticPlans = [
     {
       id: 'DECOUVERTE',
+      code: 'DECOUVERTE',
       name: 'Découverte / Essai',
       badge: 'Gratuit 3 mois',
-      priceMensuel: '0 FCFA',
-      priceAnnuel: '0 FCFA',
-      vehicles: 3,
-      users: 20,
+      priceMensuel: 0,
+      priceAnnuel: 0,
+      maxVehicles: 3,
+      maxUsers: 20,
       features: [
         'Suivi GPS temps réel des bus',
         'Carte interactive avec relais',
         'Alertes de franchissement d\'arrêts',
         'Support standard par e-mail',
       ],
-      color: 'border-zinc-800 bg-zinc-900/40',
-      buttonColor: 'bg-zinc-800 hover:bg-zinc-700 text-zinc-300',
+      popular: false,
     },
     {
       id: 'ESSENTIEL',
+      code: 'ESSENTIEL',
       name: 'Essentiel Pro',
       badge: 'Populaire',
       popular: true,
-      priceMensuel: '150 000 FCFA / mois',
-      priceAnnuel: '1 500 000 FCFA / an',
-      discount: 'Économisez 2 mois avec l\'engagement annuel',
-      vehicles: 10,
-      users: 150,
+      priceMensuel: 150000,
+      priceAnnuel: 1500000,
+      maxVehicles: 10,
+      maxUsers: 150,
       features: [
         'Toutes les fonctions Découverte',
         'Jusqu\'à 10 cars scolaires',
@@ -109,18 +122,17 @@ export default function SubscriptionPage() {
         'Clôture automatique aux terminus',
         'Support prioritaire 7j/7',
       ],
-      color: 'border-orange-500/50 bg-gradient-to-b from-orange-500/10 to-zinc-900/60 shadow-lg shadow-orange-500/5',
-      buttonColor: 'bg-orange-600 hover:bg-orange-500 text-white shadow-md shadow-orange-600/20',
     },
     {
       id: 'PREMIUM',
+      code: 'PREMIUM',
       name: 'Premium Flotte Max',
       badge: 'Pour grands réseaux',
-      priceMensuel: '450 000 FCFA / mois',
-      priceAnnuel: '4 500 000 FCFA / an',
-      discount: 'Économisez 2 mois avec l\'engagement annuel',
-      vehicles: 50,
-      users: 1000,
+      popular: false,
+      priceMensuel: 450000,
+      priceAnnuel: 4500000,
+      maxVehicles: 50,
+      maxUsers: 1000,
       features: [
         'Toutes les fonctions Essentiel Pro',
         'Jusqu\'à 50 cars scolaires',
@@ -130,10 +142,42 @@ export default function SubscriptionPage() {
         'Gestionnaire de compte dédié BabiTrack',
         'Support VIP 24h/24 & formation',
       ],
-      color: 'border-blue-500/40 bg-gradient-to-b from-blue-500/10 to-zinc-900/60',
-      buttonColor: 'bg-blue-600 hover:bg-blue-500 text-white',
     },
   ];
+
+  const rawPlans = saasPlans.length > 0 ? saasPlans : defaultStaticPlans;
+
+  const plans = rawPlans.map((p) => {
+    const code = p.code || p.id;
+    const isPopular = p.popular || code === 'ESSENTIEL';
+    const isPremium = code === 'PREMIUM';
+
+    return {
+      id: code,
+      code: code,
+      name: p.name,
+      badge: p.badge || (code === 'DECOUVERTE' ? 'Gratuit 3 mois' : isPopular ? 'Populaire' : 'Sur Mesure'),
+      popular: isPopular,
+      priceMensuelVal: p.priceMensuel || 0,
+      priceAnnuelVal: p.priceAnnuel || 0,
+      priceMensuel: p.priceMensuel > 0 ? `${p.priceMensuel.toLocaleString('fr-FR')} FCFA / mois` : '0 FCFA',
+      priceAnnuel: p.priceAnnuel > 0 ? `${p.priceAnnuel.toLocaleString('fr-FR')} FCFA / an` : '0 FCFA',
+      discount: p.priceAnnuel > 0 ? 'Économisez 2 mois avec l\'engagement annuel' : null,
+      vehicles: p.maxVehicles || p.vehicles || 3,
+      users: p.maxUsers || p.users || 20,
+      features: Array.isArray(p.features) ? p.features : [],
+      color: isPopular
+        ? 'border-orange-500/50 bg-gradient-to-b from-orange-500/10 to-zinc-900/60 shadow-lg shadow-orange-500/5'
+        : isPremium
+        ? 'border-blue-500/40 bg-gradient-to-b from-blue-500/10 to-zinc-900/60 shadow-lg shadow-blue-500/5'
+        : 'border-zinc-800 bg-zinc-900/40',
+      buttonColor: isPopular
+        ? 'bg-orange-600 hover:bg-orange-500 text-white shadow-md shadow-orange-600/20'
+        : isPremium
+        ? 'bg-blue-600 hover:bg-blue-500 text-white shadow-md shadow-blue-600/20'
+        : 'bg-zinc-800 hover:bg-zinc-700 text-zinc-300',
+    };
+  });
 
   if (loading) {
     return (
@@ -376,7 +420,7 @@ export default function SubscriptionPage() {
 
                   {/* Features list */}
                   <ul className="py-6 space-y-3">
-                    {plan.features.map((feature, idx) => (
+                    {plan.features.map((feature: string, idx: number) => (
                       <li key={idx} className="flex items-start gap-2 text-xs text-zinc-300">
                         <Check className="h-4 w-4 text-orange-500 shrink-0 mt-0.5" />
                         <span>{feature}</span>
@@ -502,10 +546,12 @@ export default function SubscriptionPage() {
                   <div className="flex justify-between">
                     <span className="text-zinc-400">Montant total :</span>
                     <span className="font-bold text-white">
-                      {billingCycle === 'ANNUEL' 
-                        ? (selectedPlanModal === 'ESSENTIEL' ? '1 500 000 FCFA' : selectedPlanModal === 'PREMIUM' ? '4 500 000 FCFA' : '0 FCFA')
-                        : (selectedPlanModal === 'ESSENTIEL' ? '150 000 FCFA' : selectedPlanModal === 'PREMIUM' ? '450 000 FCFA' : '0 FCFA')
-                      }
+                      {(() => {
+                        const targetPlan = plans.find((p) => p.id === selectedPlanModal);
+                        if (!targetPlan) return '0 FCFA';
+                        const amount = billingCycle === 'ANNUEL' ? targetPlan.priceAnnuelVal : targetPlan.priceMensuelVal;
+                        return amount > 0 ? `${amount.toLocaleString('fr-FR')} FCFA` : '0 FCFA';
+                      })()}
                     </span>
                   </div>
                 </div>
@@ -561,9 +607,10 @@ export default function SubscriptionPage() {
                       }
 
                       try {
-                        const amount = billingCycle === 'ANNUEL'
-                          ? (selectedPlanModal === 'ESSENTIEL' ? 1500000 : selectedPlanModal === 'PREMIUM' ? 4500000 : 0)
-                          : (selectedPlanModal === 'ESSENTIEL' ? 150000 : selectedPlanModal === 'PREMIUM' ? 450000 : 0);
+                        const targetPlan = plans.find((p) => p.id === selectedPlanModal);
+                        const amount = targetPlan 
+                          ? (billingCycle === 'ANNUEL' ? targetPlan.priceAnnuelVal : targetPlan.priceMensuelVal)
+                          : 0;
 
                         await api.post('/api/payment-requests/pay', {
                           plan: selectedPlanModal,
