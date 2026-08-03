@@ -158,7 +158,7 @@ export default function DashboardPage() {
           <button
             onClick={fetchStats}
             disabled={refreshing}
-            className="flex items-center justify-center gap-2 rounded-xl bg-zinc-900 px-4 py-2.5 text-sm font-semibold text-zinc-200 border border-zinc-800 hover:bg-zinc-800 transition duration-150 cursor-pointer disabled:opacity-50"
+            className="flex items-center justify-center gap-2 rounded-xl bg-[#121212] px-4 py-2.5 text-sm font-semibold text-zinc-200 border border-zinc-800 hover:bg-zinc-800 transition duration-150 cursor-pointer disabled:opacity-50"
           >
             <RefreshCw className={`h-4 w-4 text-zinc-400 ${refreshing ? 'animate-spin' : ''}`} />
             Actualiser
@@ -343,7 +343,7 @@ export default function DashboardPage() {
                     </div>
 
                     {/* Progress bar */}
-                    <div className="w-full bg-zinc-900 h-1.5 rounded-full overflow-hidden">
+                    <div className="w-full bg-[#121212] h-1.5 rounded-full overflow-hidden">
                       <div 
                         className="bg-gradient-to-r from-orange-500 to-amber-500 h-full rounded-full transition-all duration-300"
                         style={{ width: `${percent}%` }}
@@ -363,7 +363,7 @@ export default function DashboardPage() {
                             : dateObj.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
 
                           return (
-                            <div key={p.id} className="flex items-center justify-between text-xs bg-zinc-900/60 rounded-lg px-2.5 py-1.5">
+                            <div key={p.id} className="flex items-center justify-between text-xs bg-[#121212] rounded-lg px-2.5 py-1.5">
                               <div className="flex items-center gap-2">
                                 <User className="h-3.5 w-3.5 text-zinc-400" />
                                 <span className="font-semibold text-zinc-200">{p.prenom} {p.nom}</span>

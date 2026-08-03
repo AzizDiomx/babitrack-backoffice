@@ -170,7 +170,7 @@ export default function SubscriptionPage() {
         ? 'border-orange-500/50 bg-gradient-to-b from-orange-500/10 to-zinc-900/60 shadow-lg shadow-orange-500/5'
         : isPremium
         ? 'border-blue-500/40 bg-gradient-to-b from-blue-500/10 to-zinc-900/60 shadow-lg shadow-blue-500/5'
-        : 'border-zinc-800 bg-zinc-900/40',
+        : 'border-zinc-800 bg-[#121212]',
       buttonColor: isPopular
         ? 'bg-orange-600 hover:bg-orange-500 text-white shadow-md shadow-orange-600/20'
         : isPremium
@@ -271,7 +271,7 @@ export default function SubscriptionPage() {
         {/* Quotas & Usage Progress Gauges */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-6">
           {/* Vehicles Meter */}
-          <div className="rounded-2xl bg-zinc-950 border border-zinc-800 p-4 space-y-2">
+          <div className="rounded-2xl bg-[#121212] border border-zinc-800 p-4 space-y-2">
             <div className="flex items-center justify-between text-xs font-semibold">
               <span className="text-zinc-400 flex items-center gap-1.5">
                 <Bus className="h-4 w-4 text-orange-500" />
@@ -279,7 +279,7 @@ export default function SubscriptionPage() {
               </span>
               <span className="text-white font-bold">{vehicleCount} / {maxVehicles} bus</span>
             </div>
-            <div className="w-full bg-zinc-900 h-2 rounded-full overflow-hidden">
+            <div className="w-full bg-[#121212] h-2 rounded-full overflow-hidden">
               <div 
                 className={`h-full rounded-full transition-all duration-300 ${
                   vehiclePercent >= 90 ? 'bg-red-500' : vehiclePercent >= 70 ? 'bg-amber-500' : 'bg-orange-500'
@@ -295,7 +295,7 @@ export default function SubscriptionPage() {
           </div>
 
           {/* Users Meter */}
-          <div className="rounded-2xl bg-zinc-950 border border-zinc-800 p-4 space-y-2">
+          <div className="rounded-2xl bg-[#121212] border border-zinc-800 p-4 space-y-2">
             <div className="flex items-center justify-between text-xs font-semibold">
               <span className="text-zinc-400 flex items-center gap-1.5">
                 <Users className="h-4 w-4 text-orange-500" />
@@ -303,7 +303,7 @@ export default function SubscriptionPage() {
               </span>
               <span className="text-white font-bold">{userCount} / {maxUsers} usagers</span>
             </div>
-            <div className="w-full bg-zinc-900 h-2 rounded-full overflow-hidden">
+            <div className="w-full bg-[#121212] h-2 rounded-full overflow-hidden">
               <div 
                 className={`h-full rounded-full transition-all duration-300 ${
                   userPercent >= 90 ? 'bg-red-500' : userPercent >= 70 ? 'bg-amber-500' : 'bg-orange-500'
@@ -319,7 +319,7 @@ export default function SubscriptionPage() {
           </div>
 
           {/* Tenant Status Info */}
-          <div className="rounded-2xl bg-zinc-950 border border-zinc-800 p-4 flex items-center gap-3">
+          <div className="rounded-2xl bg-[#121212] border border-zinc-800 p-4 flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-500/10 text-orange-400 border border-orange-500/20 shrink-0">
               <Building2 className="h-5 w-5" />
             </div>
@@ -595,7 +595,7 @@ export default function SubscriptionPage() {
                 <div className="pt-3 border-t border-zinc-800 flex gap-3">
                   <button
                     onClick={() => setSelectedPlanModal(null)}
-                    className="flex-1 py-2.5 rounded-xl border border-zinc-800 text-xs font-semibold text-zinc-400 hover:bg-zinc-900 transition"
+                    className="flex-1 py-2.5 rounded-xl border border-zinc-800 text-xs font-semibold text-zinc-400 hover:bg-[#121212] transition"
                   >
                     Annuler
                   </button>

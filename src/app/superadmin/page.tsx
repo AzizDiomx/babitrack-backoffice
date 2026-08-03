@@ -1677,7 +1677,7 @@ export default function SuperAdminPage() {
                         className={`flex items-start gap-2.5 p-2 rounded-xl border transition cursor-pointer text-xs ${
                           isChecked
                             ? 'border-orange-500/40 bg-orange-500/10 text-white font-semibold'
-                            : 'border-zinc-800 bg-zinc-900/60 text-zinc-400 hover:text-zinc-200'
+                            : 'border-zinc-800 bg-[#121212] text-zinc-400 hover:text-zinc-200'
                         }`}
                       >
                         <input

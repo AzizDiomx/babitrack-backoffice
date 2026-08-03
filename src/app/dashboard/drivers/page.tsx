@@ -167,14 +167,14 @@ export default function DriversPage() {
   });
 
   return (
-    <div className="min-h-full bg-slate-955 p-6 lg:p-8 overflow-y-auto">
+    <div className="min-h-full bg-black p-6 lg:p-8 overflow-y-auto">
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-8">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-white sm:text-3xl">
             Gestion des Chauffeurs
           </h1>
-          <p className="text-sm text-slate-400 mt-1">
+          <p className="text-sm text-zinc-400 mt-1">
             Enregistrez les chauffeurs de votre compagnie et mettez à jour leurs identifiants de connexion mobile.
           </p>
         </div>
@@ -190,18 +190,18 @@ export default function DriversPage() {
       </div>
 
       {/* Toolbar */}
-      <div className="flex flex-col sm:flex-row gap-4 justify-between items-center mb-6 bg-slate-900/10 border border-slate-850 p-4 rounded-2xl backdrop-blur-md">
+      <div className="flex flex-col sm:flex-row gap-4 justify-between items-center mb-6 bg-[#121212] border border-zinc-800 p-4 rounded-2xl backdrop-blur-md">
         <div className="relative w-full sm:max-w-md">
-          <Search className="absolute left-3.5 top-3 h-4.5 w-4.5 text-slate-550" />
+          <Search className="absolute left-3.5 top-3 h-4.5 w-4.5 text-zinc-500" />
           <input
             type="text"
             placeholder="Rechercher par nom, téléphone, email..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-10 pr-4 py-2 text-sm text-slate-200 placeholder-slate-550 focus:outline-none focus:border-orange-500 transition"
+            className="w-full bg-black border border-zinc-800 rounded-xl pl-10 pr-4 py-2 text-sm text-zinc-200 placeholder-slate-550 focus:outline-none focus:border-orange-500 transition"
           />
         </div>
-        <div className="text-xs font-semibold text-slate-400 uppercase tracking-wide">
+        <div className="text-xs font-semibold text-zinc-400 uppercase tracking-wide">
           Total : {filteredDrivers.length} chauffeur(s)
         </div>
       </div>
@@ -212,16 +212,16 @@ export default function DriversPage() {
           <div className="h-8 w-8 border-4 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
         </div>
       ) : filteredDrivers.length === 0 ? (
-        <div className="rounded-2xl border border-slate-850 bg-slate-900/10 p-16 text-center text-slate-500 backdrop-blur-xl">
+        <div className="rounded-2xl border border-zinc-800 bg-[#121212] p-16 text-center text-zinc-500 backdrop-blur-xl">
           <UserIcon className="h-12 w-12 text-slate-700 mx-auto mb-3 animate-pulse" />
-          <p className="font-semibold text-slate-400">Aucun chauffeur trouvé</p>
-          <p className="text-xs text-slate-550 mt-1">Créez un nouveau chauffeur ou affinez votre filtre de recherche.</p>
+          <p className="font-semibold text-zinc-400">Aucun chauffeur trouvé</p>
+          <p className="text-xs text-zinc-500 mt-1">Créez un nouveau chauffeur ou affinez votre filtre de recherche.</p>
         </div>
       ) : (
-        <div className="overflow-x-auto rounded-2xl border border-slate-850 bg-slate-900/20 backdrop-blur-xl">
+        <div className="overflow-x-auto rounded-2xl border border-zinc-800 bg-[#121212] backdrop-blur-xl">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="border-b border-slate-850 bg-slate-955/40 text-xs font-bold text-slate-400 uppercase tracking-wider">
+              <tr className="border-b border-zinc-800 bg-black/40 text-xs font-bold text-zinc-400 uppercase tracking-wider">
                 <th className="py-4 px-6">Nom Complet</th>
                 <th className="py-4 px-6">Téléphone</th>
                 <th className="py-4 px-6">Email</th>
@@ -229,20 +229,20 @@ export default function DriversPage() {
                 <th className="py-4 px-6 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-850/60 text-sm text-slate-200">
+            <tbody className="divide-y divide-slate-850/60 text-sm text-zinc-200">
               {filteredDrivers.map((driver) => {
                 const fullName = `${driver.prenom} ${driver.nom}`;
                 return (
-                  <tr key={driver.id} className="hover:bg-slate-900/10 transition">
-                    <td className="py-4 px-6 font-semibold text-slate-100 flex items-center gap-3">
+                  <tr key={driver.id} className="hover:bg-[#121212] transition">
+                    <td className="py-4 px-6 font-semibold text-white flex items-center gap-3">
                       <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-orange-500/10 border border-orange-500/20">
                         <UserIcon className="h-4 w-4 text-orange-500" />
                       </div>
                       {fullName}
                     </td>
-                    <td className="py-4 px-6 font-mono text-slate-300">{driver.telephone}</td>
-                    <td className="py-4 px-6 text-slate-400">{driver.email || <span className="italic text-slate-600">Non renseigné</span>}</td>
-                    <td className="py-4 px-6 text-slate-400">
+                    <td className="py-4 px-6 font-mono text-zinc-300">{driver.telephone}</td>
+                    <td className="py-4 px-6 text-zinc-400">{driver.email || <span className="italic text-slate-600">Non renseigné</span>}</td>
+                    <td className="py-4 px-6 text-zinc-400">
                       {new Date(driver.createdAt).toLocaleDateString('fr-FR', {
                         day: '2-digit',
                         month: 'short',
@@ -253,7 +253,7 @@ export default function DriversPage() {
                       <div className="flex justify-end gap-2">
                         <button
                           onClick={() => handleEditClick(driver)}
-                          className="p-2 rounded-lg bg-slate-805 hover:bg-slate-800 border border-slate-800 text-slate-400 hover:text-slate-200 transition cursor-pointer"
+                          className="p-2 rounded-lg bg-slate-805 hover:bg-slate-800 border border-zinc-800 text-zinc-400 hover:text-zinc-200 transition cursor-pointer"
                           title="Modifier"
                         >
                           <Edit className="h-4 w-4" />
@@ -278,16 +278,16 @@ export default function DriversPage() {
       {/* Add Driver Modal */}
       {isAddModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-          <div className="w-full max-w-md bg-slate-900 rounded-3xl border border-slate-800 shadow-2xl p-6 relative overflow-y-auto max-h-[90vh]">
+          <div className="w-full max-w-md bg-[#121212] rounded-3xl border border-zinc-800 shadow-2xl p-6 relative overflow-y-auto max-h-[90vh]">
             <button
               onClick={closeAddModal}
-              className="absolute right-4 top-4 text-slate-500 hover:text-slate-355 cursor-pointer"
+              className="absolute right-4 top-4 text-zinc-500 hover:text-slate-355 cursor-pointer"
             >
               <X className="h-5 w-5" />
             </button>
 
             <h3 className="text-xl font-bold text-white mb-2">Ajouter un Chauffeur</h3>
-            <p className="text-xs text-slate-400 mb-6">
+            <p className="text-xs text-zinc-400 mb-6">
               Enregistrez un nouveau chauffeur pour piloter vos véhicules.
             </p>
 
@@ -295,24 +295,24 @@ export default function DriversPage() {
               <div className="grid grid-cols-2 gap-4">
                 {/* First name */}
                 <div>
-                  <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Prénom</label>
+                  <label className="block text-xs font-bold text-zinc-400 uppercase tracking-wider mb-2">Prénom</label>
                   <input
                     type="text"
                     value={prenom}
                     onChange={(e) => setPrenom(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:border-orange-500"
+                    className="w-full bg-black border border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-zinc-200 placeholder-slate-600 focus:outline-none focus:border-orange-500"
                     placeholder="Moussa"
                     required
                   />
                 </div>
                 {/* Last name */}
                 <div>
-                  <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Nom</label>
+                  <label className="block text-xs font-bold text-zinc-400 uppercase tracking-wider mb-2">Nom</label>
                   <input
                     type="text"
                     value={nom}
                     onChange={(e) => setNom(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:border-orange-500"
+                    className="w-full bg-black border border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-zinc-200 placeholder-slate-600 focus:outline-none focus:border-orange-500"
                     placeholder="Bamba"
                     required
                   />
@@ -321,14 +321,14 @@ export default function DriversPage() {
 
               {/* Phone */}
               <div>
-                <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Téléphone</label>
+                <label className="block text-xs font-bold text-zinc-400 uppercase tracking-wider mb-2">Téléphone</label>
                 <div className="relative">
-                  <Phone className="absolute left-3.5 top-3.5 h-4 w-4 text-slate-550" />
+                  <Phone className="absolute left-3.5 top-3.5 h-4 w-4 text-zinc-500" />
                   <input
                     type="tel"
                     value={telephone}
                     onChange={(e) => setTelephone(e.target.value)}
-                    className="w-full bg-slate-955 border border-slate-800 rounded-xl pl-10 pr-4 py-2.5 text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:border-orange-500"
+                    className="w-full bg-black border border-zinc-800 rounded-xl pl-10 pr-4 py-2.5 text-sm text-zinc-200 placeholder-slate-600 focus:outline-none focus:border-orange-500"
                     placeholder="Ex: 0202020202"
                     required
                   />
@@ -337,14 +337,14 @@ export default function DriversPage() {
 
               {/* Email */}
               <div>
-                <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Adresse Email (Optionnel)</label>
+                <label className="block text-xs font-bold text-zinc-400 uppercase tracking-wider mb-2">Adresse Email (Optionnel)</label>
                 <div className="relative">
-                  <Mail className="absolute left-3.5 top-3.5 h-4 w-4 text-slate-550" />
+                  <Mail className="absolute left-3.5 top-3.5 h-4 w-4 text-zinc-500" />
                   <input
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full bg-slate-955 border border-slate-800 rounded-xl pl-10 pr-4 py-2.5 text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:border-orange-500"
+                    className="w-full bg-black border border-zinc-800 rounded-xl pl-10 pr-4 py-2.5 text-sm text-zinc-200 placeholder-slate-600 focus:outline-none focus:border-orange-500"
                     placeholder="chauffeur@email.com"
                   />
                 </div>
@@ -352,29 +352,29 @@ export default function DriversPage() {
 
               {/* Password */}
               <div>
-                <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Mot de passe de connexion mobile</label>
+                <label className="block text-xs font-bold text-zinc-400 uppercase tracking-wider mb-2">Mot de passe de connexion mobile</label>
                 <div className="relative">
-                  <Lock className="absolute left-3.5 top-3.5 h-4 w-4 text-slate-550" />
+                  <Lock className="absolute left-3.5 top-3.5 h-4 w-4 text-zinc-500" />
                   <input
                     type="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full bg-slate-955 border border-slate-800 rounded-xl pl-10 pr-4 py-2.5 text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:border-orange-500"
+                    className="w-full bg-black border border-zinc-800 rounded-xl pl-10 pr-4 py-2.5 text-sm text-zinc-200 placeholder-slate-600 focus:outline-none focus:border-orange-500"
                     placeholder="••••••••"
                     required
                   />
                 </div>
-                <p className="text-[10px] text-slate-550 mt-1">
+                <p className="text-[10px] text-zinc-500 mt-1">
                   Ce mot de passe permettra au chauffeur de s'authentifier sur l'application mobile de tracking.
                 </p>
               </div>
 
               {/* Actions */}
-              <div className="flex gap-3 pt-4 border-t border-slate-850 mt-6">
+              <div className="flex gap-3 pt-4 border-t border-zinc-800 mt-6">
                 <button
                   type="button"
                   onClick={closeAddModal}
-                  className="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold text-sm py-3 rounded-xl transition duration-150 cursor-pointer"
+                  className="flex-1 bg-slate-800 hover:bg-slate-700 text-zinc-300 font-semibold text-sm py-3 rounded-xl transition duration-150 cursor-pointer"
                 >
                   Annuler
                 </button>
@@ -393,16 +393,16 @@ export default function DriversPage() {
       {/* Edit Driver Modal */}
       {isEditModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-          <div className="w-full max-w-md bg-slate-900 rounded-3xl border border-slate-800 shadow-2xl p-6 relative overflow-y-auto max-h-[90vh]">
+          <div className="w-full max-w-md bg-[#121212] rounded-3xl border border-zinc-800 shadow-2xl p-6 relative overflow-y-auto max-h-[90vh]">
             <button
               onClick={closeEditModal}
-              className="absolute right-4 top-4 text-slate-500 hover:text-slate-355 cursor-pointer"
+              className="absolute right-4 top-4 text-zinc-500 hover:text-slate-355 cursor-pointer"
             >
               <X className="h-5 w-5" />
             </button>
 
             <h3 className="text-xl font-bold text-white mb-2">Modifier le Chauffeur</h3>
-            <p className="text-xs text-slate-400 mb-6">
+            <p className="text-xs text-zinc-400 mb-6">
               Mettez à jour les informations de profil ou modifiez le mot de passe de connexion.
             </p>
 
@@ -410,24 +410,24 @@ export default function DriversPage() {
               <div className="grid grid-cols-2 gap-4">
                 {/* First name */}
                 <div>
-                  <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Prénom</label>
+                  <label className="block text-xs font-bold text-zinc-400 uppercase tracking-wider mb-2">Prénom</label>
                   <input
                     type="text"
                     value={prenom}
                     onChange={(e) => setPrenom(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:border-orange-500"
+                    className="w-full bg-black border border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-zinc-200 placeholder-slate-600 focus:outline-none focus:border-orange-500"
                     placeholder="Moussa"
                     required
                   />
                 </div>
                 {/* Last name */}
                 <div>
-                  <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Nom</label>
+                  <label className="block text-xs font-bold text-zinc-400 uppercase tracking-wider mb-2">Nom</label>
                   <input
                     type="text"
                     value={nom}
                     onChange={(e) => setNom(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:border-orange-500"
+                    className="w-full bg-black border border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-zinc-200 placeholder-slate-600 focus:outline-none focus:border-orange-500"
                     placeholder="Bamba"
                     required
                   />
@@ -436,14 +436,14 @@ export default function DriversPage() {
 
               {/* Phone */}
               <div>
-                <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Téléphone</label>
+                <label className="block text-xs font-bold text-zinc-400 uppercase tracking-wider mb-2">Téléphone</label>
                 <div className="relative">
-                  <Phone className="absolute left-3.5 top-3.5 h-4 w-4 text-slate-550" />
+                  <Phone className="absolute left-3.5 top-3.5 h-4 w-4 text-zinc-500" />
                   <input
                     type="tel"
                     value={telephone}
                     onChange={(e) => setTelephone(e.target.value)}
-                    className="w-full bg-slate-955 border border-slate-800 rounded-xl pl-10 pr-4 py-2.5 text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:border-orange-500"
+                    className="w-full bg-black border border-zinc-800 rounded-xl pl-10 pr-4 py-2.5 text-sm text-zinc-200 placeholder-slate-600 focus:outline-none focus:border-orange-500"
                     placeholder="Ex: 0202020202"
                     required
                   />
@@ -452,14 +452,14 @@ export default function DriversPage() {
 
               {/* Email */}
               <div>
-                <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Adresse Email (Optionnel)</label>
+                <label className="block text-xs font-bold text-zinc-400 uppercase tracking-wider mb-2">Adresse Email (Optionnel)</label>
                 <div className="relative">
-                  <Mail className="absolute left-3.5 top-3.5 h-4 w-4 text-slate-550" />
+                  <Mail className="absolute left-3.5 top-3.5 h-4 w-4 text-zinc-500" />
                   <input
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full bg-slate-955 border border-slate-800 rounded-xl pl-10 pr-4 py-2.5 text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:border-orange-500"
+                    className="w-full bg-black border border-zinc-800 rounded-xl pl-10 pr-4 py-2.5 text-sm text-zinc-200 placeholder-slate-600 focus:outline-none focus:border-orange-500"
                     placeholder="chauffeur@email.com"
                   />
                 </div>
@@ -467,25 +467,25 @@ export default function DriversPage() {
 
               {/* Password */}
               <div>
-                <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Nouveau mot de passe (Optionnel)</label>
+                <label className="block text-xs font-bold text-zinc-400 uppercase tracking-wider mb-2">Nouveau mot de passe (Optionnel)</label>
                 <div className="relative">
-                  <Lock className="absolute left-3.5 top-3.5 h-4 w-4 text-slate-550" />
+                  <Lock className="absolute left-3.5 top-3.5 h-4 w-4 text-zinc-500" />
                   <input
                     type="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full bg-slate-955 border border-slate-800 rounded-xl pl-10 pr-4 py-2.5 text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:border-orange-500"
+                    className="w-full bg-black border border-zinc-800 rounded-xl pl-10 pr-4 py-2.5 text-sm text-zinc-200 placeholder-slate-600 focus:outline-none focus:border-orange-500"
                     placeholder="Laisser vide pour ne pas modifier"
                   />
                 </div>
               </div>
 
               {/* Actions */}
-              <div className="flex gap-3 pt-4 border-t border-slate-850 mt-6">
+              <div className="flex gap-3 pt-4 border-t border-zinc-800 mt-6">
                 <button
                   type="button"
                   onClick={closeEditModal}
-                  className="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold text-sm py-3 rounded-xl transition duration-150 cursor-pointer"
+                  className="flex-1 bg-slate-800 hover:bg-slate-700 text-zinc-300 font-semibold text-sm py-3 rounded-xl transition duration-150 cursor-pointer"
                 >
                   Annuler
                 </button>

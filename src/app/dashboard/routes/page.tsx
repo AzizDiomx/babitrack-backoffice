@@ -289,7 +289,7 @@ export default function RoutesPage() {
           <div className="h-8 w-8 border-4 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
         </div>
       ) : routes.length === 0 ? (
-        <div className="rounded-2xl border border-zinc-800 bg-zinc-900/40 p-16 text-center text-zinc-500 backdrop-blur-xl">
+        <div className="rounded-2xl border border-zinc-800 bg-[#121212] p-16 text-center text-zinc-500 backdrop-blur-xl">
           <Map className="h-12 w-12 text-zinc-700 mx-auto mb-3 animate-pulse" />
           <p className="font-semibold text-zinc-400">Aucun trajet configuré</p>
           <p className="text-xs text-zinc-500 mt-1">Créez votre première ligne de ramassage en cliquant sur le bouton ci-dessus.</p>
@@ -299,7 +299,7 @@ export default function RoutesPage() {
           {routes.map((rt) => (
             <div 
               key={rt.id}
-              className="rounded-3xl border border-zinc-800 bg-zinc-900/40 p-6 backdrop-blur-xl hover:border-zinc-700 transition duration-150 space-y-5"
+              className="rounded-3xl border border-zinc-800 bg-[#121212] p-6 backdrop-blur-xl hover:border-zinc-700 transition duration-150 space-y-5"
             >
               {/* Route Header Info & Actions */}
               <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-zinc-800 pb-5">
@@ -386,7 +386,7 @@ export default function RoutesPage() {
       {/* Create / Edit Route Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-md p-4">
-          <div className="w-full max-w-4xl bg-zinc-900 rounded-3xl border border-zinc-800 shadow-2xl p-6 relative max-h-[92vh] flex flex-col">
+          <div className="w-full max-w-4xl bg-[#121212] rounded-3xl border border-zinc-800 shadow-2xl p-6 relative max-h-[92vh] flex flex-col">
             <button
               onClick={() => setIsModalOpen(false)}
               className="absolute right-5 top-5 text-zinc-400 hover:text-white cursor-pointer z-10 p-1 rounded-lg hover:bg-zinc-800"
@@ -536,7 +536,7 @@ export default function RoutesPage() {
                             type="text"
                             value={stop.nom}
                             onChange={(e) => handleStopChange(idx, 'nom', e.target.value)}
-                            className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-3 py-1.5 text-xs text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-orange-500"
+                            className="w-full bg-[#121212] border border-zinc-800 rounded-xl px-3 py-1.5 text-xs text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-orange-500"
                             placeholder="Nom du relais (ex: Carrefour Riviera)"
                             required
                           />
@@ -548,7 +548,7 @@ export default function RoutesPage() {
                             type="text"
                             value={stop.latitude}
                             onChange={(e) => handleStopChange(idx, 'latitude', e.target.value)}
-                            className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-3 py-1.5 text-xs text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-orange-500 font-mono"
+                            className="w-full bg-[#121212] border border-zinc-800 rounded-xl px-3 py-1.5 text-xs text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-orange-500 font-mono"
                             placeholder="Latitude"
                             required
                           />
@@ -560,7 +560,7 @@ export default function RoutesPage() {
                             type="text"
                             value={stop.longitude}
                             onChange={(e) => handleStopChange(idx, 'longitude', e.target.value)}
-                            className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-3 py-1.5 text-xs text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-orange-500 font-mono"
+                            className="w-full bg-[#121212] border border-zinc-800 rounded-xl px-3 py-1.5 text-xs text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-orange-500 font-mono"
                             placeholder="Longitude"
                             required
                           />
@@ -582,7 +582,7 @@ export default function RoutesPage() {
               </div>
 
               {/* Modal Actions */}
-              <div className="flex gap-3 pt-4 border-t border-zinc-800 mt-6 bg-zinc-900 sticky bottom-0 z-10">
+              <div className="flex gap-3 pt-4 border-t border-zinc-800 mt-6 bg-[#121212] sticky bottom-0 z-10">
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}

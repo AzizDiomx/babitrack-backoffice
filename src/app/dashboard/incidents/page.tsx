@@ -108,14 +108,14 @@ export default function IncidentsPage() {
   };
 
   return (
-    <div className="min-h-full bg-slate-950 p-6 lg:p-8 overflow-y-auto">
+    <div className="min-h-full bg-black p-6 lg:p-8 overflow-y-auto">
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-8">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-white sm:text-3xl">
             Signalement d'Incidents
           </h1>
-          <p className="text-sm text-slate-400 mt-1">
+          <p className="text-sm text-zinc-400 mt-1">
             Suivi en direct des anomalies signalées sur le réseau routier par vos chauffeurs
           </p>
         </div>
@@ -124,12 +124,12 @@ export default function IncidentsPage() {
       {/* Grid: Troubled Vehicles (1/3) & Incidents Log (2/3) */}
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
         {/* Troubled Vehicles (1/3) */}
-        <div className="rounded-2xl border border-slate-850 bg-slate-900/40 p-6 backdrop-blur-xl h-fit">
+        <div className="rounded-2xl border border-zinc-800 bg-[#121212] p-6 backdrop-blur-xl h-fit">
           <h3 className="text-lg font-bold text-white mb-2 flex items-center gap-2">
             <ShieldAlert className="h-5 w-5 text-red-500" />
             Flotte en alerte ({troubledVehicles.length})
           </h3>
-          <p className="text-xs text-slate-400 mb-6">
+          <p className="text-xs text-zinc-400 mb-6">
             Bus qui ont actuellement signalé un problème mécanique ou un retard de trafic.
           </p>
 
@@ -147,10 +147,10 @@ export default function IncidentsPage() {
               {troubledVehicles.map((v) => (
                 <div 
                   key={v.id}
-                  className="rounded-xl border border-slate-850 bg-slate-950/40 p-4 space-y-3 hover:border-slate-800 transition"
+                  className="rounded-xl border border-zinc-800 bg-black/40 p-4 space-y-3 hover:border-zinc-800 transition"
                 >
                   <div className="flex items-center justify-between">
-                    <span className="font-bold text-slate-200 text-sm flex items-center gap-2">
+                    <span className="font-bold text-zinc-200 text-sm flex items-center gap-2">
                       <Bus className="h-4 w-4 text-orange-500" />
                       {v.immatriculation}
                     </span>
@@ -164,15 +164,15 @@ export default function IncidentsPage() {
                   </div>
 
                   {v.chauffeur && (
-                    <div className="text-xs text-slate-400 space-y-1">
-                      <p>Chauffeur : <span className="font-semibold text-slate-200">{v.chauffeur.prenom} {v.chauffeur.nom}</span></p>
-                      <p>Contact : <span className="font-semibold text-slate-300">{v.chauffeur.telephone}</span></p>
+                    <div className="text-xs text-zinc-400 space-y-1">
+                      <p>Chauffeur : <span className="font-semibold text-zinc-200">{v.chauffeur.prenom} {v.chauffeur.nom}</span></p>
+                      <p>Contact : <span className="font-semibold text-zinc-300">{v.chauffeur.telephone}</span></p>
                     </div>
                   )}
 
                   <button
                     onClick={() => handleResolveVehicle(v.id)}
-                    className="w-full text-center bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xs py-2 rounded-lg transition cursor-pointer"
+                    className="w-full text-center bg-slate-800 hover:bg-slate-700 text-zinc-200 font-semibold text-xs py-2 rounded-lg transition cursor-pointer"
                   >
                     Marquer comme Résolu
                   </button>
@@ -184,7 +184,7 @@ export default function IncidentsPage() {
 
         {/* Incidents Timeline Log (2/3 width) */}
         <div className="lg:col-span-2 space-y-6">
-          <div className="rounded-2xl border border-slate-850 bg-slate-900/10 p-6 backdrop-blur-xl">
+          <div className="rounded-2xl border border-zinc-800 bg-[#121212] p-6 backdrop-blur-xl">
             <h3 className="text-lg font-bold text-white mb-6">
               Journal de bord des incidents
             </h3>
@@ -194,26 +194,26 @@ export default function IncidentsPage() {
                 <div className="h-8 w-8 border-4 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
               </div>
             ) : incidents.length === 0 ? (
-              <div className="text-center py-20 text-slate-550">
+              <div className="text-center py-20 text-zinc-500">
                 <CheckCircle className="h-10 w-10 text-slate-700 mx-auto mb-3" />
-                <p className="font-semibold text-slate-400">Aucun incident à signaler</p>
-                <p className="text-xs text-slate-550 mt-1">Tous les trajets se déroulent normalement pour l'instant.</p>
+                <p className="font-semibold text-zinc-400">Aucun incident à signaler</p>
+                <p className="text-xs text-zinc-500 mt-1">Tous les trajets se déroulent normalement pour l'instant.</p>
               </div>
             ) : (
               <div className="space-y-4">
                 {incidents.map((inc) => (
                   <div 
                     key={inc.id}
-                    className={`border-l-4 ${getIncidentBorderColor(inc.type)} bg-slate-900/30 border border-y-slate-850 border-r-slate-850 rounded-xl p-5 hover:border-slate-800 transition`}
+                    className={`border-l-4 ${getIncidentBorderColor(inc.type)} bg-[#121212] border border-y-slate-850 border-r-slate-850 rounded-xl p-5 hover:border-zinc-800 transition`}
                   >
                     <div className="flex items-center justify-between gap-2 mb-3">
                       <div className="flex items-center gap-2">
                         {getIncidentIcon(inc.type)}
-                        <span className="text-xs font-bold text-slate-200 uppercase tracking-wider">
+                        <span className="text-xs font-bold text-zinc-200 uppercase tracking-wider">
                           {inc.type}
                         </span>
                       </div>
-                      <div className="text-xs text-slate-500 font-medium">
+                      <div className="text-xs text-zinc-500 font-medium">
                         {new Date(inc.sentAt).toLocaleString('fr-FR', {
                           day: '2-digit',
                           month: '2-digit',
@@ -224,8 +224,8 @@ export default function IncidentsPage() {
                       </div>
                     </div>
 
-                    <h4 className="text-sm font-bold text-slate-200 mb-1">{inc.title}</h4>
-                    <p className="text-xs text-slate-400 leading-relaxed">{inc.message}</p>
+                    <h4 className="text-sm font-bold text-zinc-200 mb-1">{inc.title}</h4>
+                    <p className="text-xs text-zinc-400 leading-relaxed">{inc.message}</p>
                   </div>
                 ))}
               </div>

@@ -282,7 +282,7 @@ export default function Map() {
       className={
         isFullscreen
           ? 'fixed inset-0 z-[99999] bg-zinc-950 p-4 w-screen h-screen dark-map relative flex flex-col'
-          : 'dark-map h-full w-full rounded-3xl overflow-hidden border border-slate-800/80 shadow-inner relative'
+          : 'dark-map h-full w-full rounded-3xl overflow-hidden border border-zinc-800/80 shadow-inner relative'
       }
     >
       {/* Top Map Controls */}
@@ -405,7 +405,7 @@ export default function Map() {
           <button
             type="button"
             onClick={() => setIsFullscreen((prev) => !prev)}
-            className="bg-zinc-950/95 hover:bg-zinc-900 backdrop-blur border border-zinc-800 rounded-xl px-3 py-2 text-xs font-bold text-zinc-200 flex items-center gap-2 shadow-lg cursor-pointer transition"
+            className="bg-zinc-950/95 hover:bg-[#121212] backdrop-blur border border-zinc-800 rounded-xl px-3 py-2 text-xs font-bold text-zinc-200 flex items-center gap-2 shadow-lg cursor-pointer transition"
             title={isFullscreen ? 'Quitter le plein écran' : 'Plein écran'}
           >
             {isFullscreen ? (
@@ -480,10 +480,10 @@ export default function Map() {
                   fillOpacity={0.9}
                 >
                   <Popup>
-                    <div className="text-slate-100">
+                    <div className="text-white">
                       <p className="font-bold text-sm">{stop.nom}</p>
-                      <p className="text-xs text-slate-400 mt-1">Trajet : {route.nom}</p>
-                      <p className="text-xs text-slate-400">Ordre de passage : #{stop.ordre}</p>
+                      <p className="text-xs text-zinc-400 mt-1">Trajet : {route.nom}</p>
+                      <p className="text-xs text-zinc-400">Ordre de passage : #{stop.ordre}</p>
                     </div>
                   </Popup>
                 </CircleMarker>
@@ -507,21 +507,21 @@ export default function Map() {
               className="animate-pulse"
             >
               <Popup>
-                <div className="text-slate-100 min-w-[180px]">
+                <div className="text-white min-w-[180px]">
                   <div className="flex items-center justify-between border-b border-slate-700 pb-2 mb-2">
-                    <span className="font-bold text-sm text-slate-100">🚌 {pos.immatriculation || 'Bus scolaire'}</span>
+                    <span className="font-bold text-sm text-white">🚌 {pos.immatriculation || 'Bus scolaire'}</span>
                     <span className="inline-flex items-center rounded-full bg-emerald-500/10 px-2 py-0.5 text-xs font-medium text-emerald-400 ring-1 ring-inset ring-emerald-500/20">
                       En route
                     </span>
                   </div>
                   <div className="space-y-1.5 text-xs">
-                    <p className="text-slate-400">
-                      Vitesse : <span className="text-slate-200 font-semibold">{Math.round(pos.speed * 3.6)} km/h</span>
+                    <p className="text-zinc-400">
+                      Vitesse : <span className="text-zinc-200 font-semibold">{Math.round(pos.speed * 3.6)} km/h</span>
                     </p>
-                    <p className="text-slate-400">
-                      Prochain relais : <span className="text-slate-200 font-semibold">{pos.stopProchain}</span>
+                    <p className="text-zinc-400">
+                      Prochain relais : <span className="text-zinc-200 font-semibold">{pos.stopProchain}</span>
                     </p>
-                    <p className="text-slate-400">
+                    <p className="text-zinc-400">
                       Temps estimé (ETA) :{' '}
                       <span className="text-orange-400 font-semibold">
                         {pos.eta !== null ? `${pos.eta} min` : '--'}
@@ -535,21 +535,21 @@ export default function Map() {
       </MapContainer>
 
       {/* Légende rapide sur la carte */}
-      <div className="absolute bottom-4 right-4 bg-slate-900/95 backdrop-blur border border-slate-800/80 rounded-2xl p-4 shadow-xl z-[999] pointer-events-auto flex flex-col gap-2 text-xs">
-        <span className="font-bold text-slate-300 uppercase tracking-wider text-[10px] border-b border-slate-800 pb-1.5 mb-1">
+      <div className="absolute bottom-4 right-4 bg-[#121212]/95 backdrop-blur border border-zinc-800/80 rounded-2xl p-4 shadow-xl z-[999] pointer-events-auto flex flex-col gap-2 text-xs">
+        <span className="font-bold text-zinc-300 uppercase tracking-wider text-[10px] border-b border-zinc-800 pb-1.5 mb-1">
           Légende
         </span>
         <div className="flex items-center gap-2">
           <div className="h-3 w-3 rounded-full bg-emerald-500 border border-white"></div>
-          <span className="text-slate-300 font-medium">Car en service</span>
+          <span className="text-zinc-300 font-medium">Car en service</span>
         </div>
         <div className="flex items-center gap-2">
           <div className="h-3 w-3 rounded-full bg-slate-800 border-2 border-orange-500"></div>
-          <span className="text-slate-300 font-medium">Arrêt (Matin)</span>
+          <span className="text-zinc-300 font-medium">Arrêt (Matin)</span>
         </div>
         <div className="flex items-center gap-2">
           <div className="h-3 w-3 rounded-full bg-slate-800 border-2 border-blue-500"></div>
-          <span className="text-slate-300 font-medium">Arrêt (Soir)</span>
+          <span className="text-zinc-300 font-medium">Arrêt (Soir)</span>
         </div>
       </div>
     </div>

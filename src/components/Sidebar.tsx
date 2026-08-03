@@ -97,7 +97,7 @@ export default function Sidebar({ sidebarOpen = true }: SidebarProps) {
             {/* Theme Toggle Button */}
             <button
               onClick={toggleTheme}
-              className="w-full flex items-center justify-between rounded-xl bg-zinc-900/60 dark:bg-black border border-zinc-800 p-3 mb-3 text-xs font-bold text-zinc-300 hover:bg-zinc-800 transition duration-150 cursor-pointer"
+              className="w-full flex items-center justify-between rounded-xl bg-[#121212] dark:bg-black border border-zinc-800 p-3 mb-3 text-xs font-bold text-zinc-300 hover:bg-zinc-800 transition duration-150 cursor-pointer"
             >
               <div className="flex items-center gap-2">
                 {theme === 'dark' ? (

@@ -42,16 +42,16 @@ export default function LoginPage() {
             <Bus className="h-8 w-8 text-white" />
           </div>
         </div>
-        <h2 className="mt-6 text-center text-3xl font-extrabold tracking-tight text-slate-100">
+        <h2 className="mt-6 text-center text-3xl font-extrabold tracking-tight text-white">
           BabiTrack Admin
         </h2>
-        <p className="mt-2 text-center text-sm text-slate-400">
+        <p className="mt-2 text-center text-sm text-zinc-400">
           Interface d'administration SaaS Multi-Tenant
         </p>
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md px-4">
-        <div className="bg-zinc-900/30 backdrop-blur-md py-8 px-6 shadow-xl rounded-3xl sm:px-10">
+        <div className="bg-[#121212]/30 backdrop-blur-md py-8 px-6 shadow-xl rounded-3xl sm:px-10">
           <form className="space-y-6" onSubmit={handleSubmit}>
             {error && (
               <div className="rounded-xl bg-red-900/20 border border-red-500/20 p-4">
@@ -72,12 +72,12 @@ export default function LoginPage() {
             )}
 
             <div>
-              <label htmlFor="phone" className="block text-sm font-medium text-slate-300">
+              <label htmlFor="phone" className="block text-sm font-medium text-zinc-300">
                 Numéro de Téléphone
               </label>
               <div className="mt-1 relative rounded-xl shadow-sm">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Phone className="h-5 w-5 text-slate-500" aria-hidden="true" />
+                  <Phone className="h-5 w-5 text-zinc-500" aria-hidden="true" />
                 </div>
                 <input
                   id="phone"
@@ -88,18 +88,18 @@ export default function LoginPage() {
                   placeholder="Ex: 0101010101"
                   value={telephone}
                   onChange={(e) => setTelephone(e.target.value)}
-                  className="block w-full pl-10 pr-3 py-3 border border-zinc-800 bg-black placeholder-slate-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-slate-100 text-sm transition"
+                  className="block w-full pl-10 pr-3 py-3 border border-zinc-800 bg-black placeholder-slate-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-white text-sm transition"
                 />
               </div>
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-slate-300">
+              <label htmlFor="password" className="block text-sm font-medium text-zinc-300">
                 Mot de passe
               </label>
               <div className="mt-1 relative rounded-xl shadow-sm">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Lock className="h-5 w-5 text-slate-500" aria-hidden="true" />
+                  <Lock className="h-5 w-5 text-zinc-500" aria-hidden="true" />
                 </div>
                 <input
                   id="password"
@@ -110,12 +110,12 @@ export default function LoginPage() {
                   placeholder="Votre mot de passe"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="block w-full pl-10 pr-10 py-3 border border-zinc-800 bg-black placeholder-slate-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-slate-100 text-sm transition"
+                  className="block w-full pl-10 pr-10 py-3 border border-zinc-800 bg-black placeholder-slate-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-white text-sm transition"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-500 hover:text-slate-300"
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-zinc-500 hover:text-zinc-300"
                 >
                   {showPassword ? (
                     <EyeOff className="h-5 w-5" aria-hidden="true" />

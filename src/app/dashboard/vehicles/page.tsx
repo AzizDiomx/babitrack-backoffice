@@ -229,9 +229,9 @@ export default function VehiclesPage() {
       case 'PANNE':
         return 'bg-red-500/10 text-red-400 border border-red-500/20';
       case 'HORS_SERVICE':
-        return 'bg-slate-800 text-slate-400 border border-slate-700';
+        return 'bg-slate-800 text-zinc-400 border border-slate-700';
       default:
-        return 'bg-slate-800 text-slate-400 border border-slate-700';
+        return 'bg-slate-800 text-zinc-400 border border-slate-700';
     }
   };
 
@@ -251,14 +251,14 @@ export default function VehiclesPage() {
   };
 
   return (
-    <div className="min-h-full bg-slate-955 p-6 lg:p-8 overflow-y-auto">
+    <div className="min-h-full bg-black p-6 lg:p-8 overflow-y-auto">
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-8">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-white sm:text-3xl">
             Gestion des Véhicules
           </h1>
-          <p className="text-sm text-slate-400 mt-1">
+          <p className="text-sm text-zinc-400 mt-1">
             Enregistrer les bus scolaires, surveiller leur statut de service et assigner des chauffeurs
           </p>
         </div>
@@ -279,20 +279,20 @@ export default function VehiclesPage() {
           <div className="h-8 w-8 border-4 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
         </div>
       ) : vehicles.length === 0 ? (
-        <div className="rounded-2xl border border-slate-850 bg-slate-900/10 p-16 text-center text-slate-500 backdrop-blur-xl">
+        <div className="rounded-2xl border border-zinc-800 bg-[#121212] p-16 text-center text-zinc-500 backdrop-blur-xl">
           <Bus className="h-12 w-12 text-slate-700 mx-auto mb-3 animate-pulse" />
-          <p className="font-semibold text-slate-400">Aucun véhicule enregistré</p>
-          <p className="text-xs text-slate-550 mt-1">Enregistrez votre premier bus en cliquant sur le bouton ci-dessus.</p>
+          <p className="font-semibold text-zinc-400">Aucun véhicule enregistré</p>
+          <p className="text-xs text-zinc-500 mt-1">Enregistrez votre premier bus en cliquant sur le bouton ci-dessus.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {vehicles.map((vh) => (
             <div 
               key={vh.id} 
-              className="group relative overflow-hidden rounded-2xl border border-slate-850 bg-slate-900/30 backdrop-blur-xl transition duration-150 hover:-translate-y-1 hover:border-slate-800 flex flex-col"
+              className="group relative overflow-hidden rounded-2xl border border-zinc-800 bg-[#121212] backdrop-blur-xl transition duration-150 hover:-translate-y-1 hover:border-zinc-800 flex flex-col"
             >
               {/* Cover Image of the Vehicle */}
-              <div className="h-40 w-full relative bg-slate-900 overflow-hidden rounded-t-2xl">
+              <div className="h-40 w-full relative bg-[#121212] overflow-hidden rounded-t-2xl">
                 <img
                   src={getVehicleImageUrl(vh.imageUrl)}
                   alt={vh.immatriculation}
@@ -312,14 +312,14 @@ export default function VehiclesPage() {
                       <Bus className="h-5 w-5 text-orange-500" />
                     </div>
                     <div>
-                      <h3 className="text-base font-bold text-slate-100">{vh.immatriculation}</h3>
-                      <span className="text-[9px] font-bold text-slate-500 uppercase tracking-wider">Bus de transport</span>
+                      <h3 className="text-base font-bold text-white">{vh.immatriculation}</h3>
+                      <span className="text-[9px] font-bold text-zinc-500 uppercase tracking-wider">Bus de transport</span>
                     </div>
                   </div>
                   <div className="flex gap-1.5">
                     <button
                       onClick={() => handleEditClick(vh)}
-                      className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-750 text-slate-400 hover:text-slate-200 transition cursor-pointer"
+                      className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-750 text-zinc-400 hover:text-zinc-200 transition cursor-pointer"
                       title="Modifier"
                     >
                       <Edit className="h-3.5 w-3.5" />
@@ -335,19 +335,19 @@ export default function VehiclesPage() {
                 </div>
 
                 {/* Vehicle parameters */}
-                <div className="space-y-2.5 border-t border-slate-850 pt-4 text-xs">
-                  <div className="flex items-center justify-between text-slate-400">
-                    <span className="flex items-center gap-1 text-slate-500 font-semibold uppercase tracking-wide">
+                <div className="space-y-2.5 border-t border-zinc-800 pt-4 text-xs">
+                  <div className="flex items-center justify-between text-zinc-400">
+                    <span className="flex items-center gap-1 text-zinc-500 font-semibold uppercase tracking-wide">
                       <Users className="h-3.5 w-3.5" /> Capacité
                     </span>
-                    <span className="font-bold text-slate-200">{vh.capacite} places</span>
+                    <span className="font-bold text-zinc-200">{vh.capacite} places</span>
                   </div>
                   
-                  <div className="flex items-center justify-between text-slate-400">
-                    <span className="flex items-center gap-1 text-slate-500 font-semibold uppercase tracking-wide">
+                  <div className="flex items-center justify-between text-zinc-400">
+                    <span className="flex items-center gap-1 text-zinc-500 font-semibold uppercase tracking-wide">
                       <User className="h-3.5 w-3.5" /> Chauffeur
                     </span>
-                    <span className="font-bold text-slate-200 truncate max-w-[150px]">
+                    <span className="font-bold text-zinc-200 truncate max-w-[150px]">
                       {vh.chauffeur ? `${vh.chauffeur.prenom} ${vh.chauffeur.nom}` : (
                         <span className="text-slate-600 font-medium italic">Non assigné</span>
                       )}
@@ -355,11 +355,11 @@ export default function VehiclesPage() {
                   </div>
 
                   {vh.chauffeur && (
-                    <div className="flex items-center justify-between text-slate-400">
-                      <span className="flex items-center gap-1 text-slate-500 font-semibold uppercase tracking-wide">
+                    <div className="flex items-center justify-between text-zinc-400">
+                      <span className="flex items-center gap-1 text-zinc-500 font-semibold uppercase tracking-wide">
                         📞 Téléphone
                       </span>
-                      <span className="font-bold text-slate-400">{vh.chauffeur.telephone}</span>
+                      <span className="font-bold text-zinc-400">{vh.chauffeur.telephone}</span>
                     </div>
                   )}
                 </div>
@@ -372,30 +372,30 @@ export default function VehiclesPage() {
       {/* Add Vehicle Modal */}
       {isAddModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-          <div className="w-full max-w-md bg-slate-900 rounded-3xl border border-slate-800 shadow-2xl p-6 relative overflow-y-auto max-h-[90vh]">
+          <div className="w-full max-w-md bg-[#121212] rounded-3xl border border-zinc-800 shadow-2xl p-6 relative overflow-y-auto max-h-[90vh]">
             <button
               onClick={() => setIsAddModalOpen(false)}
-              className="absolute right-4 top-4 text-slate-500 hover:text-slate-355 cursor-pointer"
+              className="absolute right-4 top-4 text-zinc-500 hover:text-slate-355 cursor-pointer"
             >
               <X className="h-5 w-5" />
             </button>
 
             <h3 className="text-xl font-bold text-white mb-2">Enregistrer un véhicule</h3>
-            <p className="text-xs text-slate-400 mb-6">
+            <p className="text-xs text-zinc-400 mb-6">
               Ajoutez une nouvelle unité à votre flotte de transport scolaire.
             </p>
 
             <form onSubmit={handleAddSubmit} className="space-y-4">
               {/* License plate */}
               <div>
-                <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Immatriculation</label>
+                <label className="block text-xs font-bold text-zinc-400 uppercase tracking-wider mb-2">Immatriculation</label>
                 <div className="relative">
-                  <Hash className="absolute left-3 top-3.5 h-4 w-4 text-slate-550" />
+                  <Hash className="absolute left-3 top-3.5 h-4 w-4 text-zinc-500" />
                   <input
                     type="text"
                     value={immatriculation}
                     onChange={(e) => setImmatriculation(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-9 pr-4 py-2.5 text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:border-orange-500"
+                    className="w-full bg-black border border-zinc-800 rounded-xl pl-9 pr-4 py-2.5 text-sm text-zinc-200 placeholder-slate-600 focus:outline-none focus:border-orange-500"
                     placeholder="Ex: CI-0123-AB"
                     required
                   />
@@ -404,12 +404,12 @@ export default function VehiclesPage() {
 
               {/* Capacity */}
               <div>
-                <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Capacité de passagers</label>
+                <label className="block text-xs font-bold text-zinc-400 uppercase tracking-wider mb-2">Capacité de passagers</label>
                 <input
                   type="number"
                   value={capacite}
                   onChange={(e) => setCapacite(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-orange-500"
+                  className="w-full bg-black border border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-zinc-200 focus:outline-none focus:border-orange-500"
                   placeholder="Nombre de places assises"
                   min="1"
                   required
@@ -418,11 +418,11 @@ export default function VehiclesPage() {
 
               {/* Driver select */}
               <div>
-                <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Assigner un Chauffeur</label>
+                <label className="block text-xs font-bold text-zinc-400 uppercase tracking-wider mb-2">Assigner un Chauffeur</label>
                 <select
                   value={selectedChauffeurId}
                   onChange={(e) => setSelectedChauffeurId(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-orange-500"
+                  className="w-full bg-black border border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-zinc-200 focus:outline-none focus:border-orange-500"
                 >
                   <option value="">-- Aucun chauffeur assigné --</option>
                   {chauffeurs.map((ch) => (
@@ -435,7 +435,7 @@ export default function VehiclesPage() {
 
               {/* Preset cover image selection */}
               <div>
-                <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Modèle & Illustration</label>
+                <label className="block text-xs font-bold text-zinc-400 uppercase tracking-wider mb-2">Modèle & Illustration</label>
                 <div className="grid grid-cols-2 gap-3 mb-3">
                   {PRESETS_VEHICLES.map((preset) => {
                     const isSelected = selectedImageUrl === preset.url;
@@ -448,7 +448,7 @@ export default function VehiclesPage() {
                           setCustomImageUrl('');
                         }}
                         className={`relative h-20 rounded-xl overflow-hidden border transition text-left cursor-pointer ${
-                          isSelected ? 'border-orange-500 ring-1 ring-orange-500' : 'border-slate-800 hover:border-slate-700'
+                          isSelected ? 'border-orange-500 ring-1 ring-orange-500' : 'border-zinc-800 hover:border-slate-700'
                         }`}
                       >
                         <img
@@ -456,7 +456,7 @@ export default function VehiclesPage() {
                           alt={preset.name}
                           className="w-full h-full object-cover opacity-60"
                         />
-                        <div className="absolute inset-0 bg-slate-950/40"></div>
+                        <div className="absolute inset-0 bg-black/40"></div>
                         <span className="absolute bottom-2 left-2 text-[10px] font-bold text-white shadow-sm">
                           {preset.name}
                         </span>
@@ -468,7 +468,7 @@ export default function VehiclesPage() {
 
               {/* Upload image */}
               <div>
-                <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Ou Téléverser une photo</label>
+                <label className="block text-xs font-bold text-zinc-400 uppercase tracking-wider mb-2">Ou Téléverser une photo</label>
                 <div className="flex items-center gap-3">
                   <input
                     type="file"
@@ -479,7 +479,7 @@ export default function VehiclesPage() {
                   />
                   <label
                     htmlFor="vehicle-image-upload"
-                    className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-dashed border-slate-800 bg-slate-950 px-4 py-3 text-xs font-bold text-slate-450 hover:border-orange-500 hover:text-slate-200 transition cursor-pointer"
+                    className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-dashed border-zinc-800 bg-black px-4 py-3 text-xs font-bold text-slate-450 hover:border-orange-500 hover:text-zinc-200 transition cursor-pointer"
                   >
                     <ImageIcon className="h-4.5 w-4.5" />
                     {uploadingImage ? 'Téléversement en cours...' : 'Choisir un fichier image'}
@@ -494,11 +494,11 @@ export default function VehiclesPage() {
               </div>
 
               {/* Actions */}
-              <div className="flex gap-3 pt-4 border-t border-slate-850 mt-6">
+              <div className="flex gap-3 pt-4 border-t border-zinc-800 mt-6">
                 <button
                   type="button"
                   onClick={() => setIsAddModalOpen(false)}
-                  className="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold text-sm py-3 rounded-xl transition duration-150 cursor-pointer"
+                  className="flex-1 bg-slate-800 hover:bg-slate-700 text-zinc-300 font-semibold text-sm py-3 rounded-xl transition duration-150 cursor-pointer"
                 >
                   Annuler
                 </button>
@@ -516,30 +516,30 @@ export default function VehiclesPage() {
       {/* Edit Vehicle Modal */}
       {isEditModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-          <div className="w-full max-w-md bg-slate-900 rounded-3xl border border-slate-800 shadow-2xl p-6 relative overflow-y-auto max-h-[90vh]">
+          <div className="w-full max-w-md bg-[#121212] rounded-3xl border border-zinc-800 shadow-2xl p-6 relative overflow-y-auto max-h-[90vh]">
             <button
               onClick={closeEditModal}
-              className="absolute right-4 top-4 text-slate-500 hover:text-slate-355 cursor-pointer"
+              className="absolute right-4 top-4 text-zinc-500 hover:text-slate-355 cursor-pointer"
             >
               <X className="h-5 w-5" />
             </button>
 
             <h3 className="text-xl font-bold text-white mb-2">Modifier le véhicule</h3>
-            <p className="text-xs text-slate-400 mb-6">
+            <p className="text-xs text-zinc-400 mb-6">
               Modifiez les informations ou l'assignation de ce véhicule.
             </p>
 
             <form onSubmit={handleEditSubmit} className="space-y-4">
               {/* License plate */}
               <div>
-                <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Immatriculation</label>
+                <label className="block text-xs font-bold text-zinc-400 uppercase tracking-wider mb-2">Immatriculation</label>
                 <div className="relative">
-                  <Hash className="absolute left-3 top-3.5 h-4 w-4 text-slate-550" />
+                  <Hash className="absolute left-3 top-3.5 h-4 w-4 text-zinc-500" />
                   <input
                     type="text"
                     value={immatriculation}
                     onChange={(e) => setImmatriculation(e.target.value)}
-                    className="w-full bg-slate-955 border border-slate-800 rounded-xl pl-9 pr-4 py-2.5 text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:border-orange-500"
+                    className="w-full bg-black border border-zinc-800 rounded-xl pl-9 pr-4 py-2.5 text-sm text-zinc-200 placeholder-slate-600 focus:outline-none focus:border-orange-500"
                     placeholder="Ex: CI-0123-AB"
                     required
                   />
@@ -548,12 +548,12 @@ export default function VehiclesPage() {
 
               {/* Capacity */}
               <div>
-                <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Capacité de passagers</label>
+                <label className="block text-xs font-bold text-zinc-400 uppercase tracking-wider mb-2">Capacité de passagers</label>
                 <input
                   type="number"
                   value={capacite}
                   onChange={(e) => setCapacite(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-orange-500"
+                  className="w-full bg-black border border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-zinc-200 focus:outline-none focus:border-orange-500"
                   placeholder="Nombre de places assises"
                   min="1"
                   required
@@ -562,11 +562,11 @@ export default function VehiclesPage() {
 
               {/* Driver select */}
               <div>
-                <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Assigner un Chauffeur</label>
+                <label className="block text-xs font-bold text-zinc-400 uppercase tracking-wider mb-2">Assigner un Chauffeur</label>
                 <select
                   value={selectedChauffeurId}
                   onChange={(e) => setSelectedChauffeurId(e.target.value)}
-                  className="w-full bg-slate-955 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-orange-500"
+                  className="w-full bg-black border border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-zinc-200 focus:outline-none focus:border-orange-500"
                 >
                   <option value="">-- Aucun chauffeur assigné --</option>
                   {chauffeurs.map((ch) => (
@@ -579,7 +579,7 @@ export default function VehiclesPage() {
 
               {/* Preset cover image selection */}
               <div>
-                <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Modèle & Illustration</label>
+                <label className="block text-xs font-bold text-zinc-400 uppercase tracking-wider mb-2">Modèle & Illustration</label>
                 <div className="grid grid-cols-2 gap-3 mb-3">
                   {PRESETS_VEHICLES.map((preset) => {
                     const isSelected = selectedImageUrl === preset.url;
@@ -592,7 +592,7 @@ export default function VehiclesPage() {
                           setCustomImageUrl('');
                         }}
                         className={`relative h-20 rounded-xl overflow-hidden border transition text-left cursor-pointer ${
-                          isSelected ? 'border-orange-500 ring-1 ring-orange-500' : 'border-slate-800 hover:border-slate-700'
+                          isSelected ? 'border-orange-500 ring-1 ring-orange-500' : 'border-zinc-800 hover:border-slate-700'
                         }`}
                       >
                         <img
@@ -600,7 +600,7 @@ export default function VehiclesPage() {
                           alt={preset.name}
                           className="w-full h-full object-cover opacity-60"
                         />
-                        <div className="absolute inset-0 bg-slate-950/40"></div>
+                        <div className="absolute inset-0 bg-black/40"></div>
                         <span className="absolute bottom-2 left-2 text-[10px] font-bold text-white shadow-sm">
                           {preset.name}
                         </span>
@@ -612,7 +612,7 @@ export default function VehiclesPage() {
 
               {/* Upload image */}
               <div>
-                <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Ou Téléverser une photo</label>
+                <label className="block text-xs font-bold text-zinc-400 uppercase tracking-wider mb-2">Ou Téléverser une photo</label>
                 <div className="flex items-center gap-3">
                   <input
                     type="file"
@@ -623,7 +623,7 @@ export default function VehiclesPage() {
                   />
                   <label
                     htmlFor="vehicle-image-upload-edit"
-                    className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-dashed border-slate-800 bg-slate-950 px-4 py-3 text-xs font-bold text-slate-450 hover:border-orange-500 hover:text-slate-200 transition cursor-pointer"
+                    className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-dashed border-zinc-800 bg-black px-4 py-3 text-xs font-bold text-slate-450 hover:border-orange-500 hover:text-zinc-200 transition cursor-pointer"
                   >
                     <ImageIcon className="h-4.5 w-4.5" />
                     {uploadingImage ? 'Téléversement en cours...' : 'Choisir un fichier image'}
@@ -638,11 +638,11 @@ export default function VehiclesPage() {
               </div>
 
               {/* Actions */}
-              <div className="flex gap-3 pt-4 border-t border-slate-850 mt-6">
+              <div className="flex gap-3 pt-4 border-t border-zinc-800 mt-6">
                 <button
                   type="button"
                   onClick={closeEditModal}
-                  className="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold text-sm py-3 rounded-xl transition duration-150 cursor-pointer"
+                  className="flex-1 bg-slate-800 hover:bg-slate-700 text-zinc-300 font-semibold text-sm py-3 rounded-xl transition duration-150 cursor-pointer"
                 >
                   Annuler
                 </button>

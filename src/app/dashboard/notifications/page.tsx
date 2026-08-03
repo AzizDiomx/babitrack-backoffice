@@ -109,19 +109,19 @@ export default function NotificationsPage() {
       case 'MEDIUM':
         return 'bg-amber-500/10 text-amber-400 border border-amber-500/20';
       default:
-        return 'bg-slate-800 text-slate-400 border border-slate-700/50';
+        return 'bg-slate-800 text-zinc-400 border border-slate-700/50';
     }
   };
 
   return (
-    <div className="min-h-full bg-slate-950 p-6 lg:p-8 overflow-y-auto">
+    <div className="min-h-full bg-black p-6 lg:p-8 overflow-y-auto">
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-8">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-white sm:text-3xl">
             Alertes & Notifications Push
           </h1>
-          <p className="text-sm text-slate-400 mt-1">
+          <p className="text-sm text-zinc-400 mt-1">
             Diffuser des alertes de trafic ou des annonces générales aux parents et aux élèves
           </p>
         </div>
@@ -130,24 +130,24 @@ export default function NotificationsPage() {
       {/* Grid: Form (1/3) & History (2/3) */}
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
         {/* Send Form (1/3 width) */}
-        <div className="rounded-2xl border border-slate-850 bg-slate-900/40 p-6 backdrop-blur-xl h-fit">
+        <div className="rounded-2xl border border-zinc-800 bg-[#121212] p-6 backdrop-blur-xl h-fit">
           <h3 className="text-lg font-bold text-white mb-2 flex items-center gap-2">
             <Bell className="h-5 w-5 text-orange-500" />
             Nouvelle diffusion
           </h3>
-          <p className="text-xs text-slate-400 mb-6">
+          <p className="text-xs text-zinc-400 mb-6">
             Le message sera instantanément transmis par notification push sur les smartphones des élèves.
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Title */}
             <div>
-              <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Titre de l'alerte</label>
+              <label className="block text-xs font-bold text-zinc-400 uppercase tracking-wider mb-2">Titre de l'alerte</label>
               <input
                 type="text"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:border-orange-500"
+                className="w-full bg-black border border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-zinc-200 placeholder-slate-600 focus:outline-none focus:border-orange-500"
                 placeholder="Titre accrocheur..."
                 required
               />
@@ -155,12 +155,12 @@ export default function NotificationsPage() {
 
             {/* Message Body */}
             <div>
-              <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Message</label>
+              <label className="block text-xs font-bold text-zinc-400 uppercase tracking-wider mb-2">Message</label>
               <textarea
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 rows={4}
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:border-orange-500"
+                className="w-full bg-black border border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-zinc-200 placeholder-slate-600 focus:outline-none focus:border-orange-500"
                 placeholder="Rédigez le contenu du message ici..."
                 required
               />
@@ -168,11 +168,11 @@ export default function NotificationsPage() {
 
             {/* Type */}
             <div>
-              <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Type d'alerte</label>
+              <label className="block text-xs font-bold text-zinc-400 uppercase tracking-wider mb-2">Type d'alerte</label>
               <select
                 value={type}
                 onChange={(e) => setType(e.target.value)}
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-orange-500"
+                className="w-full bg-black border border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-zinc-200 focus:outline-none focus:border-orange-500"
               >
                 <option value="INFO">INFORMATION GÉNÉRALE</option>
                 <option value="URGENT">URGENT</option>
@@ -185,11 +185,11 @@ export default function NotificationsPage() {
 
             {/* Severity */}
             <div>
-              <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Niveau de gravité</label>
+              <label className="block text-xs font-bold text-zinc-400 uppercase tracking-wider mb-2">Niveau de gravité</label>
               <select
                 value={severity}
                 onChange={(e) => setSeverity(e.target.value)}
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-orange-500"
+                className="w-full bg-black border border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-zinc-200 focus:outline-none focus:border-orange-500"
               >
                 <option value="LOW">BASSE (Info simple)</option>
                 <option value="MEDIUM">MOYENNE (Retard...)</option>
@@ -211,7 +211,7 @@ export default function NotificationsPage() {
 
         {/* History List (2/3 width) */}
         <div className="lg:col-span-2 space-y-6">
-          <div className="rounded-2xl border border-slate-850 bg-slate-900/10 p-6 backdrop-blur-xl">
+          <div className="rounded-2xl border border-zinc-800 bg-[#121212] p-6 backdrop-blur-xl">
             <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-2">
               <Clock className="h-5 w-5 text-slate-450" />
               Historique des diffusions
@@ -222,10 +222,10 @@ export default function NotificationsPage() {
                 <div className="h-8 w-8 border-4 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
               </div>
             ) : notifications.length === 0 ? (
-              <div className="text-center py-20 text-slate-500">
+              <div className="text-center py-20 text-zinc-500">
                 <CheckCircle className="h-10 w-10 text-slate-700 mx-auto mb-3" />
-                <p className="font-semibold text-slate-400">Aucune alerte diffusée</p>
-                <p className="text-xs text-slate-550 mt-1">Les messages envoyés par la compagnie apparaîtront ici.</p>
+                <p className="font-semibold text-zinc-400">Aucune alerte diffusée</p>
+                <p className="text-xs text-zinc-500 mt-1">Les messages envoyés par la compagnie apparaîtront ici.</p>
               </div>
             ) : (
               <div className="space-y-4">
@@ -233,7 +233,7 @@ export default function NotificationsPage() {
                   <div 
                     key={notif.id}
                     style={{ borderLeftColor: getNotificationColor(notif.type) }}
-                    className="border-l-4 bg-slate-900/30 border border-y-slate-850 border-r-slate-850 rounded-xl p-5 hover:border-slate-800 transition"
+                    className="border-l-4 bg-[#121212] border border-y-slate-850 border-r-slate-850 rounded-xl p-5 hover:border-zinc-800 transition"
                   >
                     <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
                       <div className="flex items-center gap-2">
@@ -247,7 +247,7 @@ export default function NotificationsPage() {
                           {notif.severity}
                         </span>
                       </div>
-                      <div className="text-xs text-slate-500 font-medium flex items-center gap-1.5">
+                      <div className="text-xs text-zinc-500 font-medium flex items-center gap-1.5">
                         <Calendar className="h-3.5 w-3.5" />
                         {new Date(notif.sentAt).toLocaleString('fr-FR', {
                           day: '2-digit',
@@ -259,11 +259,11 @@ export default function NotificationsPage() {
                       </div>
                     </div>
                     
-                    <h4 className="text-sm font-bold text-slate-200 mb-1.5">{notif.title}</h4>
-                    <p className="text-xs leading-relaxed text-slate-400">{notif.message}</p>
+                    <h4 className="text-sm font-bold text-zinc-200 mb-1.5">{notif.title}</h4>
+                    <p className="text-xs leading-relaxed text-zinc-400">{notif.message}</p>
                     
                     {notif.admin && (
-                      <div className="mt-4 pt-3 border-t border-slate-900 text-[10px] text-slate-500 font-semibold uppercase tracking-wider">
+                      <div className="mt-4 pt-3 border-t border-slate-900 text-[10px] text-zinc-500 font-semibold uppercase tracking-wider">
                         Par: {notif.admin.prenom} {notif.admin.nom}
                       </div>
                     )}
