@@ -1,10 +1,12 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, Suspense } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import { useTheme } from '../../context/ThemeContext';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
+import EditProfileModal from '../../components/EditProfileModal';
 import {
   Building2,
   LogOut,
@@ -12,8 +14,65 @@ import {
   Shield,
   Bus,
   Menu,
-  X
+  X,
+  Sun,
+  Moon,
+  Settings,
+  UserPlus,
+  Coins,
+  Receipt,
+  BarChart3,
+  Layers
 } from 'lucide-react';
+
+function SuperAdminNavItems({ onCloseMobile }: { onCloseMobile: () => void }) {
+  const pathname = usePathname();
+
+  const superAdminNav = [
+    { name: 'Compagnies', href: '/superadmin', icon: Building2 },
+    { name: 'Demandes', href: '/superadmin/requests', icon: UserPlus },
+    { name: 'Tarification', href: '/superadmin/pricing', icon: Coins },
+    { name: 'Facturation', href: '/superadmin/billing', icon: Receipt },
+    { name: 'Statistiques', href: '/superadmin/stats', icon: BarChart3 },
+  ];
+
+  return (
+    <ul className="space-y-1.5">
+      {superAdminNav.map((item) => {
+        const isActive = item.href === '/superadmin' 
+          ? pathname === '/superadmin' 
+          : pathname.startsWith(item.href);
+
+        return (
+          <li key={item.href}>
+            <Link
+              href={item.href}
+              onClick={onCloseMobile}
+              className={`
+                group flex items-center justify-between rounded-2xl px-3.5 py-3 text-xs font-bold min-h-[44px] leading-6 transition duration-150 cursor-pointer
+                ${isActive 
+                  ? 'bg-gradient-to-r from-orange-600/20 to-amber-600/10 text-orange-400 border border-orange-500/30 shadow-md shadow-orange-950/20' 
+                  : 'text-zinc-400 hover:bg-zinc-800/60 hover:text-white border border-transparent'
+                }
+              `}
+            >
+              <div className="flex items-center gap-x-3">
+                <item.icon
+                  className={`h-4.5 w-4.5 shrink-0 ${isActive ? 'text-orange-400' : 'text-zinc-500 group-hover:text-zinc-300'}`}
+                  aria-hidden="true"
+                />
+                <span>{item.name}</span>
+              </div>
+              {isActive && (
+                <div className="h-2 w-2 rounded-full bg-orange-500 shadow-sm shadow-orange-500" />
+              )}
+            </Link>
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
 
 export default function SuperAdminLayout({
   children,
@@ -21,9 +80,11 @@ export default function SuperAdminLayout({
   children: React.ReactNode;
 }) {
   const { user, loading, isAuthenticated, logout } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const pathname = usePathname();
   const router = useRouter();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [editProfileOpen, setEditProfileOpen] = useState(false);
 
   // Redirect to login if not authenticated
   useEffect(() => {
@@ -96,27 +157,24 @@ export default function SuperAdminLayout({
       >
         <div className="flex h-full w-full flex-col bg-[#121212] border-r border-zinc-800">
           {/* Brand Header */}
-          <div className="flex h-16 shrink-0 items-center justify-between px-6 border-b border-zinc-800 bg-black">
+          <div className="flex h-20 shrink-0 items-center justify-between px-6 border-b border-zinc-800 bg-black">
             <div className="flex items-center gap-x-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-orange-600 shadow-md shadow-orange-600/10">
-                <Bus className="h-5 w-5 text-white" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-orange-500 to-amber-600 shadow-lg shadow-orange-600/20 ring-1 ring-orange-400/30">
+                <Shield className="h-5.5 w-5.5 text-white" />
               </div>
               <div>
-                <span className="text-md font-bold tracking-wider text-white uppercase">
+                <span className="text-md font-extrabold tracking-wider text-white uppercase block">
                   BabiTrack
                 </span>
-                <div className="flex items-center gap-1">
-                  <Shield className="h-3 w-3 text-orange-500" />
-                  <span className="text-[9px] font-semibold text-zinc-500 uppercase tracking-widest">
-                    Super Admin
-                  </span>
-                </div>
+                <span className="inline-flex items-center gap-1 text-[9px] font-extrabold text-orange-400 uppercase tracking-widest bg-orange-500/10 px-2 py-0.5 rounded-full border border-orange-500/20">
+                  Super Admin Console
+                </span>
               </div>
             </div>
 
             <button
               onClick={() => setMobileOpen(false)}
-              className="md:hidden flex h-11 w-11 items-center justify-center rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-white transition cursor-pointer"
+              className="md:hidden flex h-10 w-10 items-center justify-center rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-white transition cursor-pointer"
             >
               <X className="h-5 w-5" />
             </button>
@@ -124,60 +182,83 @@ export default function SuperAdminLayout({
 
           {/* Navigation */}
           <nav className="flex flex-1 flex-col gap-y-7 px-4 py-6 overflow-y-auto">
-            <ul role="list" className="flex flex-1 flex-col justify-between h-full">
+            <ul role="list" className="flex flex-1 flex-col justify-between h-full space-y-6">
               <li>
-                <ul className="-mx-2 space-y-1">
-                  <li>
-                    <Link
-                      href="/superadmin"
-                      onClick={() => setMobileOpen(false)}
-                      className={`
-                        group flex items-center gap-x-3 rounded-xl px-3.5 py-3 text-sm font-semibold min-h-[44px] leading-6 transition duration-150 cursor-pointer
-                        ${isCompaniesActive 
-                          ? 'bg-orange-600/10 text-orange-500 border border-orange-500/20' 
-                          : 'text-zinc-400 hover:bg-zinc-800/60 hover:text-white border border-transparent'
-                        }
-                      `}
-                    >
-                      <Building2
-                        className={`h-5 w-5 shrink-0 ${isCompaniesActive ? 'text-orange-500' : 'text-zinc-500 group-hover:text-zinc-300'}`}
-                        aria-hidden="true"
-                      />
-                      Compagnies & SaaS
-                    </Link>
-                  </li>
-                </ul>
+                <div className="px-2 mb-3">
+                  <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">
+                    MODULES PLATEFORME SAAS
+                  </span>
+                </div>
+                <Suspense fallback={<div className="text-xs text-zinc-500 p-2">Chargement du menu...</div>}>
+                  <SuperAdminNavItems onCloseMobile={() => setMobileOpen(false)} />
+                </Suspense>
               </li>
 
-              {/* Logged in Super Admin Section */}
-              <li>
-                <div className="rounded-2xl bg-black border border-zinc-800 p-4 mb-2">
-                  <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">
-                    SYSTÈME HÔTE
-                  </span>
-                  <p className="mt-1 text-sm font-bold text-zinc-200 truncate">
-                    BabiTrack Hosting
-                  </p>
+              {/* System Health & Logged in Super Admin Section */}
+              <li className="space-y-3">
+                {/* System Status Card */}
+                <div className="rounded-2xl bg-black/80 border border-zinc-800 p-3.5 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">
+                      INFRASTRUCTURE SÉCURISÉE
+                    </span>
+                    <span className="flex h-2 w-2 relative">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="font-semibold text-zinc-300">Statut Réseau</span>
+                    <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
+                      100% Opérationnel
+                    </span>
+                  </div>
                 </div>
 
-                <div className="flex items-center gap-x-4 px-2 py-3 border-t border-zinc-800 mt-4">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-zinc-800 border border-zinc-800">
-                    <UserIcon className="h-5 w-5 text-zinc-400" />
+                {/* Theme Toggle Button */}
+                <button
+                  onClick={toggleTheme}
+                  className="w-full flex items-center justify-between rounded-xl bg-[#121212] border border-zinc-800 p-3 text-xs font-bold text-zinc-300 hover:bg-zinc-800 transition duration-150 cursor-pointer"
+                >
+                  <div className="flex items-center gap-2">
+                    {theme === 'dark' ? (
+                      <Moon className="h-4 w-4 text-orange-400" />
+                    ) : (
+                      <Sun className="h-4 w-4 text-amber-500" />
+                    )}
+                    <span className="text-zinc-200">{theme === 'dark' ? 'Mode Sombre' : 'Mode Clair'}</span>
+                  </div>
+                  <span className="text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full bg-orange-500/10 text-orange-500 border border-orange-500/20">
+                    {theme === 'dark' ? 'Dark' : 'Light'}
+                  </span>
+                </button>
+
+                {/* User Profile Footer */}
+                <div className="flex items-center gap-x-3 px-2 py-3 border-t border-zinc-800 pt-3">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-orange-500/10 border border-orange-500/20 shrink-0">
+                    <UserIcon className="h-4.5 w-4.5 text-orange-400" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs font-semibold text-zinc-200 truncate">
+                    <p className="text-xs font-bold text-zinc-100 truncate">
                       {user?.prenom} {user?.nom}
                     </p>
-                    <span className="inline-flex items-center rounded-full bg-black px-2 py-0.5 text-[9px] font-semibold text-orange-500 border border-orange-500/20 uppercase tracking-wider">
-                      {user?.role}
+                    <span className="inline-flex items-center rounded-full bg-orange-500/10 px-2 py-0.5 text-[9px] font-bold text-orange-400 border border-orange-500/20 uppercase tracking-wider">
+                      SUPER ADMIN
                     </span>
                   </div>
                   <button
+                    onClick={() => setEditProfileOpen(true)}
+                    className="group p-1.5 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg hover:bg-zinc-800 border border-transparent hover:border-zinc-700 transition cursor-pointer"
+                    title="Modifier mon profil"
+                  >
+                    <Settings className="h-4 w-4 text-zinc-400 group-hover:text-white transition" />
+                  </button>
+                  <button
                     onClick={logout}
-                    className="group p-2 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg hover:bg-red-950/20 border border-transparent hover:border-red-500/10 transition cursor-pointer"
+                    className="group p-1.5 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg hover:bg-red-950/20 border border-transparent hover:border-red-500/10 transition cursor-pointer"
                     title="Déconnexion"
                   >
-                    <LogOut className="h-5 w-5 text-zinc-500 group-hover:text-red-400 transition" />
+                    <LogOut className="h-4 w-4 text-zinc-500 group-hover:text-red-400 transition" />
                   </button>
                 </div>
               </li>
@@ -192,6 +273,12 @@ export default function SuperAdminLayout({
           {children}
         </main>
       </div>
+
+      {/* Edit Profile Modal */}
+      <EditProfileModal
+        isOpen={editProfileOpen}
+        onClose={() => setEditProfileOpen(false)}
+      />
     </div>
   );
 }

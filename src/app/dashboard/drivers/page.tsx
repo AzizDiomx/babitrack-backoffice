@@ -12,7 +12,9 @@ import {
   Mail, 
   Lock,
   User as UserIcon,
-  Shield
+  Shield,
+  Eye,
+  EyeOff
 } from 'lucide-react';
 import api from '../../../services/api';
 import NotificationModal, { ConfirmModal, NotificationState, ConfirmState } from '../../../components/NotificationModal';
@@ -51,6 +53,7 @@ export default function DriversPage() {
   const [telephone, setTelephone] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
   const fetchDrivers = async () => {
     try {
@@ -370,13 +373,25 @@ export default function DriversPage() {
                 <div className="relative">
                   <Lock className="absolute left-3.5 top-3.5 h-4 w-4 text-zinc-500" />
                   <input
-                    type="password"
+                    type={showPassword ? 'text' : 'password'}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full bg-black border border-zinc-800 rounded-xl pl-10 pr-4 py-2.5 text-sm text-zinc-200 placeholder-slate-600 focus:outline-none focus:border-orange-500"
+                    className="w-full bg-black border border-zinc-800 rounded-xl pl-10 pr-10 py-2.5 text-sm text-zinc-200 placeholder-slate-600 focus:outline-none focus:border-orange-500"
                     placeholder="••••••••"
                     required
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-zinc-500 hover:text-zinc-300 transition cursor-pointer"
+                    aria-label="Afficher ou masquer le mot de passe"
+                  >
+                    {showPassword ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
+                  </button>
                 </div>
                 <p className="text-[10px] text-zinc-500 mt-1">
                   Ce mot de passe permettra au chauffeur de s'authentifier sur l'application mobile de tracking.
@@ -485,12 +500,24 @@ export default function DriversPage() {
                 <div className="relative">
                   <Lock className="absolute left-3.5 top-3.5 h-4 w-4 text-zinc-500" />
                   <input
-                    type="password"
+                    type={showPassword ? 'text' : 'password'}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full bg-black border border-zinc-800 rounded-xl pl-10 pr-4 py-2.5 text-sm text-zinc-200 placeholder-slate-600 focus:outline-none focus:border-orange-500"
+                    className="w-full bg-black border border-zinc-800 rounded-xl pl-10 pr-10 py-2.5 text-sm text-zinc-200 placeholder-slate-600 focus:outline-none focus:border-orange-500"
                     placeholder="Laisser vide pour ne pas modifier"
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-zinc-500 hover:text-zinc-300 transition cursor-pointer"
+                    aria-label="Afficher ou masquer le mot de passe"
+                  >
+                    {showPassword ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
+                  </button>
                 </div>
               </div>
 

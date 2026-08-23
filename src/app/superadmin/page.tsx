@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import {
   Building2,
   Plus,
@@ -26,7 +27,11 @@ import {
   Sparkles,
   Clock,
   ArrowUpRight,
-  CheckCircle2
+  CheckCircle2,
+  RefreshCw,
+  Eye,
+  EyeOff,
+  Bus
 } from 'lucide-react';
 import api from '../../services/api';
 import NotificationModal, { NotificationState } from '../../components/NotificationModal';
@@ -85,7 +90,7 @@ const PREDEFINED_PLATFORM_FEATURES = [
   'Gestionnaire de compte dédié BabiTrack & Formation',
 ];
 
-export default function SuperAdminPage() {
+function SuperAdminPageContent() {
   const [companies, setCompanies] = useState<Company[]>([]);
   const [saasPlans, setSaasPlans] = useState<SaasPlanItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -132,6 +137,7 @@ export default function SuperAdminPage() {
   const [telephone, setTelephone] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
   // Subscription Edit Form State
   const [editPlan, setEditPlan] = useState('DECOUVERTE');
@@ -480,20 +486,51 @@ export default function SuperAdminPage() {
     return status === 'ACTIVE' ? 'Actif' : 'Suspendu';
   };
 
+  const handleTriggerExpirations = async () => {
+    try {
+      const res = await api.post('/api/users/check-expirations');
+      const { expiredUsersCount, expiredCompaniesCount } = res.data;
+      notify(
+        'success',
+        'Vérification des expirations',
+        `Purge terminée : ${expiredUsersCount || 0} abonné(s) et ${expiredCompaniesCount || 0} compagnie(s) expirée(s) suspendu(e)s.`
+      );
+      fetchCompanies();
+    } catch (err: any) {
+      console.error(err);
+      notify('error', 'Erreur d\'expiration', 'Erreur lors du déclenchement de la vérification des expirations.');
+    }
+  };
+
   return (
     <div className="min-h-full bg-black p-6 lg:p-8">
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-8">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-white sm:text-3xl">
-            Gestion des Compagnies & Abonnements
-          </h1>
-          <p className="text-sm text-zinc-400 mt-1">
-            Supervisez les forfaits locataires, configurez les limites de ressources et analysez l'utilisation globale.
+          <div className="flex items-center gap-2 mb-1">
+            <h1 className="text-2xl font-bold tracking-tight text-white sm:text-3xl">
+              Console d'Administration SaaS
+            </h1>
+            <span className="inline-flex items-center rounded-full bg-orange-500/10 px-2.5 py-0.5 text-[10px] font-bold text-orange-400 border border-orange-500/20 uppercase tracking-wider">
+              BabiTrack Core
+            </span>
+          </div>
+          <p className="text-sm text-zinc-400">
+            Supervisez la santé globale des locataires, abonnements, revenus et quotas de la plateforme BabiTrack.
           </p>
         </div>
-        <div>
+        <div className="flex items-center gap-3 flex-wrap sm:flex-nowrap">
           <button
+            type="button"
+            onClick={handleTriggerExpirations}
+            className="flex items-center justify-center gap-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-300 hover:text-white px-4 py-3 min-h-[44px] text-sm font-semibold w-full sm:w-auto transition duration-150 cursor-pointer shadow-sm"
+            title="Exécuter la vérification d'expiration et suspendre les comptes échus"
+          >
+            <RefreshCw className="h-4 w-4 text-orange-500" />
+            <span>Purger les expirations</span>
+          </button>
+          <button
+            type="button"
             onClick={() => setIsCompanyModalOpen(true)}
             className="flex items-center justify-center gap-2 rounded-xl bg-orange-600 hover:bg-orange-500 text-white px-4 py-3 min-h-[44px] text-sm font-semibold w-full sm:w-auto transition duration-150 cursor-pointer shadow-md shadow-orange-600/10"
           >
@@ -503,64 +540,75 @@ export default function SuperAdminPage() {
         </div>
       </div>
 
-      {/* Tabs Menu */}
-      <div className="flex border-b border-zinc-800 mb-8 gap-x-4 flex-wrap">
-        <button
-          onClick={() => setActiveTab('companies')}
-          className={`flex items-center gap-2 pb-4 text-sm font-bold tracking-wide transition border-b-2 cursor-pointer ${
-            activeTab === 'companies'
-              ? 'border-orange-500 text-orange-500'
-              : 'border-transparent text-zinc-400 hover:text-zinc-200'
-          }`}
-        >
-          <Layers className="h-4.5 w-4.5" />
-          Comptes & Abonnements
-        </button>
-        <button
-          onClick={() => setActiveTab('requests')}
-          className={`flex items-center gap-2 pb-4 text-sm font-bold tracking-wide transition border-b-2 cursor-pointer ${
-            activeTab === 'requests'
-              ? 'border-orange-500 text-orange-500'
-              : 'border-transparent text-zinc-400 hover:text-zinc-200'
-          }`}
-        >
-          <UserPlus className="h-4.5 w-4.5" />
-          Demandes d'inscription
-        </button>
-        <button
-          onClick={() => setActiveTab('pricing')}
-          className={`flex items-center gap-2 pb-4 text-sm font-bold tracking-wide transition border-b-2 cursor-pointer ${
-            activeTab === 'pricing'
-              ? 'border-orange-500 text-orange-500'
-              : 'border-transparent text-zinc-400 hover:text-zinc-200'
-          }`}
-        >
-          <Coins className="h-4.5 w-4.5" />
-          Tarification & Offres SaaS
-        </button>
-        <button
-          onClick={() => setActiveTab('billing')}
-          className={`flex items-center gap-2 pb-4 text-sm font-bold tracking-wide transition border-b-2 cursor-pointer ${
-            activeTab === 'billing'
-              ? 'border-orange-500 text-orange-500'
-              : 'border-transparent text-zinc-400 hover:text-zinc-200'
-          }`}
-        >
-          <Receipt className="h-4.5 w-4.5" />
-          Facturation & Règlements
-        </button>
-        <button
-          onClick={() => setActiveTab('stats')}
-          className={`flex items-center gap-2 pb-4 text-sm font-bold tracking-wide transition border-b-2 cursor-pointer ${
-            activeTab === 'stats'
-              ? 'border-orange-500 text-orange-500'
-              : 'border-transparent text-zinc-400 hover:text-zinc-200'
-          }`}
-        >
-          <BarChart3 className="h-4.5 w-4.5" />
-          Tableau des Statistiques
-        </button>
-      </div>
+      {/* Top Executive KPI Cards */}
+      {(() => {
+        const activeCompanies = companies.filter(c => c.status !== 'DRAFT' && c.status !== 'PENDING_APPROVAL');
+        const totalVehiclesCount = activeCompanies.reduce((acc, curr) => acc + (curr._count?.vehicles || 0), 0);
+        const totalUsersCount = activeCompanies.reduce((acc, curr) => acc + (curr._count?.users || 0), 0);
+        const totalSubscriptionsCount = activeCompanies.reduce((acc, curr) => acc + (curr._count?.subscriptions || 0), 0);
+
+        return (
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-8">
+            <div className="rounded-3xl border border-zinc-800 bg-[#121212] p-5 backdrop-blur-xl space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">Compagnies Actives</span>
+                <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-orange-500/10 border border-orange-500/20">
+                  <Building2 className="h-4 w-4 text-orange-500" />
+                </div>
+              </div>
+              <div className="flex items-baseline gap-2">
+                <span className="text-2xl font-extrabold text-white">{activeCompanies.length}</span>
+                <span className="text-[11px] font-semibold text-zinc-400">/ {companies.length} au total</span>
+              </div>
+              <span className="text-[10px] font-semibold text-emerald-400 block">100% Licences Gérées</span>
+            </div>
+
+            <div className="rounded-3xl border border-zinc-800 bg-[#121212] p-5 backdrop-blur-xl space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">Abonnés & Élèves</span>
+                <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-emerald-500/10 border border-emerald-500/20">
+                  <UserPlus className="h-4 w-4 text-emerald-400" />
+                </div>
+              </div>
+              <div className="flex items-baseline gap-2">
+                <span className="text-2xl font-extrabold text-white">{totalUsersCount}</span>
+                <span className="text-[11px] font-semibold text-zinc-400">inscrits</span>
+              </div>
+              <span className="text-[10px] font-semibold text-zinc-400 block">Global Multi-Locataires</span>
+            </div>
+
+            <div className="rounded-3xl border border-zinc-800 bg-[#121212] p-5 backdrop-blur-xl space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">Flotte de Bus Globale</span>
+                <div className="flex items-center justify-center h-8 w-8 rounded-xl bg-blue-500/10 border border-blue-500/20">
+                  <Bus className="h-4 w-4 text-blue-400" />
+                </div>
+              </div>
+              <div className="flex items-baseline gap-2">
+                <span className="text-2xl font-extrabold text-white">{totalVehiclesCount}</span>
+                <span className="text-[11px] font-semibold text-zinc-400">véhicules</span>
+              </div>
+              <span className="text-[10px] font-semibold text-emerald-400 block">GPS Temps Réel Actif</span>
+            </div>
+
+            <div className="rounded-3xl border border-zinc-800 bg-[#121212] p-5 backdrop-blur-xl space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">Forfaits & Abonnements</span>
+                <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-amber-500/10 border border-amber-500/20">
+                  <CreditCard className="h-4 w-4 text-amber-400" />
+                </div>
+              </div>
+              <div className="flex items-baseline gap-2">
+                <span className="text-2xl font-extrabold text-white">{totalSubscriptionsCount}</span>
+                <span className="text-[11px] font-semibold text-zinc-400">plans</span>
+              </div>
+              <span className="text-[10px] font-semibold text-orange-400 block">Recouvrement Automatique</span>
+            </div>
+          </div>
+        );
+      })()}
+
+
 
       {loading ? (
         <div className="flex justify-center items-center py-20">
@@ -574,7 +622,7 @@ export default function SuperAdminPage() {
             Enregistrez votre première compagnie cliente en cliquant sur le bouton ci-dessus.
           </p>
         </div>
-      ) : activeTab === 'companies' ? (
+      ) : (
         /* Companies Grid with usage gauges */
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
           {companies.filter(c => c.status !== 'DRAFT' && c.status !== 'PENDING_APPROVAL').map((company, companyIdx) => {
@@ -722,479 +770,11 @@ export default function SuperAdminPage() {
             );
           })}
         </div>
-      ) : activeTab === 'requests' ? (
-        <div className="overflow-hidden rounded-2xl border border-zinc-800 bg-[#121212] backdrop-blur-xl">
-          <div className="px-6 py-5 border-b border-zinc-800 bg-[#121212] flex items-center justify-between">
-            <h3 className="text-sm font-bold uppercase tracking-wider text-zinc-300">
-              Demandes d'Inscription & Brouillons Prospects
-            </h3>
-            <span className="text-xs font-semibold text-orange-500 bg-orange-500/10 border border-orange-500/25 rounded-full px-3 py-1">
-              Total : {companies.filter(c => c.status === 'DRAFT' || c.status === 'PENDING_APPROVAL').length} demande(s)
-            </span>
-          </div>
-          
-          {companies.filter(c => c.status === 'DRAFT' || c.status === 'PENDING_APPROVAL').length === 0 ? (
-            <div className="p-16 text-center text-zinc-500">
-              <CheckCircle className="h-10 w-10 text-zinc-500 mx-auto mb-3" />
-              <p className="font-semibold text-zinc-400">Aucune demande en attente</p>
-              <p className="text-xs text-zinc-500 mt-1">Toutes les demandes d'inscription ont été traitées.</p>
-            </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-sm text-zinc-300">
-                <thead className="bg-black text-xs font-bold text-zinc-400 uppercase tracking-wider border-b border-zinc-800">
-                  <tr>
-                    <th className="px-6 py-4">Nom de la Compagnie</th>
-                    <th className="px-6 py-4">Sous-domaine</th>
-                    <th className="px-6 py-4">Contact</th>
-                    <th className="px-6 py-4">Date de demande</th>
-                    <th className="px-6 py-4">Forfait</th>
-                    <th className="px-6 py-4">Statut</th>
-                    <th className="px-6 py-4 text-right">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-zinc-800 bg-black">
-                  {companies.filter(c => c.status === 'DRAFT' || c.status === 'PENDING_APPROVAL').map((company, reqIdx) => {
-                    const hasAdmin = company.users && company.users.length > 0;
-                    const admin = hasAdmin ? company.users[0] : null;
-                    const isDraft = company.status === 'DRAFT';
-                    
-                    return (
-                      <tr key={`company-req-${company.id || reqIdx}`} className="hover:bg-zinc-800/10 transition">
-                        <td className="px-6 py-4 font-bold text-white">
-                          {isDraft ? (
-                            <span className="italic text-zinc-400">{company.name}</span>
-                          ) : (
-                            company.name
-                          )}
-                        </td>
-                        <td className="px-6 py-4 font-semibold text-zinc-300">
-                          {company.subdomain ? (
-                            <span className="font-mono text-zinc-400 text-xs">{company.subdomain}.babitrack.com</span>
-                          ) : (
-                            <span className="italic text-zinc-500 text-xs">Non renseigné (Étape 1)</span>
-                          )}
-                        </td>
-                        <td className="px-6 py-4">
-                          {admin ? (
-                            <div className="flex flex-col text-xs">
-                              <span className="font-bold text-zinc-200">{admin.prenom} {admin.nom}</span>
-                              <span className="text-zinc-400 mt-0.5">📞 {admin.telephone}</span>
-                              {admin.email && <span className="text-zinc-500">{admin.email}</span>}
-                            </div>
-                          ) : (
-                            <span className="italic text-zinc-500 text-xs">Inconnu</span>
-                          )}
-                        </td>
-                        <td className="px-6 py-4 text-zinc-400 text-xs">
-                          {new Date(company.createdAt).toLocaleDateString('fr-FR', {
-                            day: '2-digit',
-                            month: 'short',
-                            year: 'numeric',
-                            hour: '2-digit',
-                            minute: '2-digit'
-                          })}
-                        </td>
-                        <td className="px-6 py-4">
-                          <span className="bg-zinc-800 text-zinc-300 border border-zinc-700 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase">
-                            {company.plan}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4">
-                          {isDraft ? (
-                            <span className="bg-zinc-800/40 text-zinc-500 border border-zinc-800/60 text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
-                              Brouillon (Abandonné)
-                            </span>
-                          ) : (
-                            <span className="bg-amber-500/10 text-amber-400 border border-amber-500/20 text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider animate-pulse">
-                              En attente de validation
-                            </span>
-                          )}
-                        </td>
-                        <td className="px-6 py-4 text-right">
-                          {isDraft ? (
-                            <div className="flex justify-end items-center gap-2">
-                              {admin && (
-                                <a
-                                  href={`tel:${admin.telephone}`}
-                                  className="rounded-lg bg-orange-600/10 hover:bg-orange-600/20 text-orange-500 border border-orange-500/25 px-2.5 py-1.5 text-xs font-bold transition cursor-pointer"
-                                  title="Relancer le prospect par téléphone"
-                                >
-                                  Relancer par Tél
-                                </a>
-                              )}
-                            </div>
-                          ) : (
-                            <button
-                              onClick={() => handleApproveCompany(company.id, company.name)}
-                              className="rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 text-xs font-bold shadow-md shadow-emerald-600/10 transition cursor-pointer"
-                            >
-                              Valider l'inscription
-                            </button>
-                          )}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </div>
-      ) : activeTab === 'pricing' ? (
-        /* Pricing & SaaS Plans Management View */
-        <div className="space-y-8">
-          <div className="rounded-2xl border border-zinc-800 bg-[#121212] p-6 backdrop-blur-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div>
-              <h3 className="text-lg font-bold text-white flex items-center gap-2">
-                <Coins className="h-5 w-5 text-orange-500" />
-                Gestion Globale des Offres & Tarification SaaS
-              </h3>
-              <p className="text-xs text-zinc-400 mt-1">
-                Création et modification en direct des formules d'abonnement, tarifs en FCFA, plafonds de bus et options.
-              </p>
-            </div>
-            <div className="flex items-center gap-3">
-              <button
-                onClick={() => openPlanModal()}
-                className="flex items-center gap-2 rounded-xl bg-orange-600 hover:bg-orange-500 text-white px-4 py-2 text-xs font-bold transition shadow-md shadow-orange-600/10 cursor-pointer"
-              >
-                <Plus className="h-4 w-4" />
-                Créer une Nouvelle Offre
-              </button>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-            {saasPlans.map((plan, planIdx) => (
-              <div
-                key={`saas-plan-${plan.id || plan.code || planIdx}`}
-                className={`rounded-2xl border p-6 backdrop-blur-xl space-y-4 flex flex-col justify-between relative ${
-                  plan.popular
-                    ? 'border-orange-500/50 bg-orange-500/5 shadow-lg shadow-orange-500/5'
-                    : 'border-zinc-800 bg-[#121212]'
-                }`}
-              >
-                {plan.popular && (
-                  <span className="absolute -top-3 left-6 bg-orange-600 text-white text-[9px] font-black uppercase tracking-wider px-3 py-0.5 rounded-full">
-                    Offre Recommandée
-                  </span>
-                )}
-
-                <div>
-                  <div className="flex justify-between items-start pt-1">
-                    <div>
-                      <h4 className="text-lg font-bold text-white">{plan.name}</h4>
-                      <span className="text-[10px] font-bold text-orange-400 uppercase tracking-wider bg-orange-500/10 border border-orange-500/20 px-2.5 py-0.5 rounded-full mt-1 inline-block">
-                        Code: {plan.code} {plan.badge ? `• ${plan.badge}` : ''}
-                      </span>
-                    </div>
-                    <div className="text-right">
-                      <span className="text-xl font-bold text-white block">
-                        {plan.priceMensuel > 0 ? `${plan.priceMensuel.toLocaleString('fr-FR')} FCFA` : '0 FCFA'}
-                      </span>
-                      <span className="text-[10px] text-zinc-400">/ mois</span>
-                    </div>
-                  </div>
-
-                  <div className="space-y-2 text-xs text-zinc-300 border-t border-b border-zinc-800 py-4 my-4">
-                    <div className="flex justify-between">
-                      <span className="text-zinc-500">Max Véhicules de flotte :</span>
-                      <span className="font-bold text-white">{plan.maxVehicles} bus</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-zinc-500">Max Abonnés / Élèves :</span>
-                      <span className="font-bold text-white">{plan.maxUsers} usagers</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-zinc-500">Tarif Annuel :</span>
-                      <span className="font-bold text-emerald-400">
-                        {plan.priceAnnuel > 0 ? `${plan.priceAnnuel.toLocaleString('fr-FR')} FCFA / an` : 'Gratuit'}
-                      </span>
-                    </div>
-                  </div>
-
-                  {plan.features && plan.features.length > 0 && (
-                    <ul className="space-y-1.5 text-xs text-zinc-400 pb-4">
-                      {plan.features.map((feat, idx) => (
-                        <li key={`feat-${plan.id || plan.code || planIdx}-${idx}`} className="flex items-center gap-1.5 text-zinc-300">
-                          <CheckCircle2 className="h-3.5 w-3.5 text-orange-500 shrink-0" />
-                          <span>{feat}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </div>
-
-                <div className="pt-3 border-t border-zinc-800 flex justify-end gap-2">
-                  <button
-                    onClick={() => openPlanModal(plan)}
-                    className="flex items-center gap-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-200 border border-zinc-700 px-3 py-1.5 text-xs font-bold transition cursor-pointer"
-                  >
-                    <Settings2 className="h-3.5 w-3.5" />
-                    Modifier l'offre
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      ) : activeTab === 'billing' ? (
-        /* Billing & Payments History View */
-        <div className="space-y-6">
-          {/* Revenue KPI banner */}
-          <div className="grid grid-cols-1 md:grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-            <div className="rounded-2xl border border-zinc-800 bg-[#121212] p-6 backdrop-blur-xl">
-              <span className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Chiffre d'Affaires SaaS Cumulé</span>
-              <p className="text-3xl font-bold text-white mt-2">
-                {(companies.filter(c => c.plan === 'ESSENTIEL').length * 1500000 + companies.filter(c => c.plan === 'PREMIUM').length * 4500000).toLocaleString('fr-FR')} FCFA
-              </p>
-              <span className="text-[11px] text-emerald-400 mt-2 block font-medium">Revenus d'abonnements récurrents</span>
-            </div>
-
-            <div className="rounded-2xl border border-zinc-800 bg-[#121212] p-6 backdrop-blur-xl">
-              <span className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Abonnements Récurrents Actifs</span>
-              <p className="text-3xl font-bold text-orange-500 mt-2">
-                {companies.filter(c => c.status === 'ACTIVE').length} / {companies.length}
-              </p>
-              <span className="text-[11px] text-zinc-400 mt-2 block font-medium">Compagnies en règle</span>
-            </div>
-
-            <div className="rounded-2xl border border-zinc-800 bg-[#121212] p-6 backdrop-blur-xl">
-              <span className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Compagnies Expirées / À relancer</span>
-              <p className="text-3xl font-bold text-red-400 mt-2">
-                {companies.filter(c => isExpired(c.subscriptionExpiresAt)).length}
-              </p>
-              <span className="text-[11px] text-red-400/80 mt-2 block font-medium">Requiert relance de paiement</span>
-            </div>
-          </div>
-
-          {/* Demandes de Règlements à Vérifier (Justificatifs) */}
-          <div className="overflow-hidden rounded-2xl border border-orange-500/30 bg-[#121212] backdrop-blur-xl">
-            <div className="px-6 py-5 border-b border-zinc-800 bg-[#121212] flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Receipt className="h-5 w-5 text-orange-500" />
-                <h3 className="text-sm font-bold uppercase tracking-wider text-white">
-                  Demandes de Règlements & Preuves de Paiement à Vérifier
-                </h3>
-              </div>
-              <span className="px-3 py-1 bg-orange-500/10 border border-orange-500/20 text-orange-400 text-xs font-bold rounded-full">
-                {paymentRequests.filter(r => r.status === 'PENDING').length} en attente
-              </span>
-            </div>
-            <div className="overflow-x-auto">
-              {paymentRequests.length === 0 ? (
-                <div className="p-8 text-center text-xs text-zinc-500">
-                  Aucun justificatif de paiement en attente de validation.
-                </div>
-              ) : (
-                <table className="w-full text-left text-sm text-zinc-300">
-                  <thead className="bg-black text-xs font-bold text-zinc-400 uppercase tracking-wider border-b border-zinc-800">
-                    <tr>
-                      <th className="px-6 py-4">Compagnie</th>
-                      <th className="px-6 py-4">Forfait Visé</th>
-                      <th className="px-6 py-4">Montant</th>
-                      <th className="px-6 py-4">N° Réf. Justificatif</th>
-                      <th className="px-6 py-4">Date Demande</th>
-                      <th className="px-6 py-4">Statut</th>
-                      <th className="px-6 py-4 text-right">Actions Super Admin</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-zinc-800 bg-black">
-                    {paymentRequests.map((req, reqIdx) => (
-                      <tr key={`pay-req-${req.id || reqIdx}`} className="hover:bg-zinc-800/20 transition">
-                        <td className="px-6 py-4 font-bold text-white">
-                          {req.company?.name || 'Inconnue'}
-                        </td>
-                        <td className="px-6 py-4">
-                          <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${getPlanBadge(req.plan)}`}>
-                            {req.plan} ({req.billingCycle})
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 font-bold text-emerald-400">
-                          {req.amount ? `${req.amount.toLocaleString('fr-FR')} FCFA` : '0 FCFA'}
-                        </td>
-                        <td className="px-6 py-4 font-mono text-xs font-bold text-orange-400">
-                          {req.transactionRef}
-                        </td>
-                        <td className="px-6 py-4 text-xs text-zinc-400">
-                          {formatDate(req.createdAt)}
-                        </td>
-                        <td className="px-6 py-4">
-                          {req.status === 'PENDING' ? (
-                            <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20 uppercase tracking-wider">
-                              En attente
-                            </span>
-                          ) : req.status === 'APPROVED' ? (
-                            <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 uppercase tracking-wider">
-                              Validé
-                            </span>
-                          ) : (
-                            <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-bold bg-red-500/10 text-red-400 border border-red-500/20 uppercase tracking-wider">
-                              Rejeté
-                            </span>
-                          )}
-                        </td>
-                        <td className="px-6 py-4 text-right">
-                          {req.status === 'PENDING' && (
-                            <div className="flex items-center justify-end gap-2">
-                              <button
-                                onClick={() => handleApprovePayment(req.id)}
-                                className="rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 text-xs font-bold transition cursor-pointer"
-                              >
-                                ✅ Approuver le paiement
-                              </button>
-                              <button
-                                onClick={() => handleRejectPayment(req.id)}
-                                className="rounded-lg bg-zinc-800 hover:bg-red-950/40 text-red-400 border border-zinc-700 hover:border-red-500/30 px-3 py-1.5 text-xs font-bold transition cursor-pointer"
-                              >
-                                ❌ Rejeter
-                              </button>
-                            </div>
-                          )}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              )}
-            </div>
-          </div>
-
-          {/* Billing Table */}
-          <div className="overflow-hidden rounded-2xl border border-zinc-800 bg-[#121212] backdrop-blur-xl">
-            <div className="px-6 py-5 border-b border-zinc-800 bg-[#121212] flex items-center justify-between">
-              <h3 className="text-sm font-bold uppercase tracking-wider text-zinc-300">
-                Suivi des Règlements & Renouvellements de Licence
-              </h3>
-            </div>
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-sm text-zinc-300">
-                <thead className="bg-black text-xs font-bold text-zinc-400 uppercase tracking-wider border-b border-zinc-800">
-                  <tr>
-                    <th className="px-6 py-4">Compagnie</th>
-                    <th className="px-6 py-4">Forfait Souscrit</th>
-                    <th className="px-6 py-4">Tarif Annuel Estimé</th>
-                    <th className="px-6 py-4">Échéance Licence</th>
-                    <th className="px-6 py-4">Statut Règlement</th>
-                    <th className="px-6 py-4 text-right">Actions Super Admin</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-zinc-800 bg-black">
-                  {companies.map((company, billIdx) => {
-                    const expired = isExpired(company.subscriptionExpiresAt);
-                    const estimatedPrice = company.plan === 'PREMIUM' ? '4 500 000 FCFA' : company.plan === 'ESSENTIEL' ? '1 500 000 FCFA' : '0 FCFA (Gratuit)';
-
-                    return (
-                      <tr key={`company-bill-${company.id || billIdx}`} className="hover:bg-zinc-800/10 transition">
-                        <td className="px-6 py-4 font-bold text-white">
-                          {company.name}
-                        </td>
-                        <td className="px-6 py-4">
-                          <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${getPlanBadge(company.plan)}`}>
-                            {company.plan}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 font-semibold text-zinc-200">
-                          {estimatedPrice}
-                        </td>
-                        <td className="px-6 py-4 text-xs font-semibold text-zinc-400">
-                          {formatDate(company.subscriptionExpiresAt)}
-                        </td>
-                        <td className="px-6 py-4">
-                          {expired ? (
-                            <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-bold bg-red-500/10 text-red-400 border border-red-500/20 uppercase tracking-wider">
-                              Échéance Dépassée
-                            </span>
-                          ) : (
-                            <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 uppercase tracking-wider">
-                              À jour (Payé)
-                            </span>
-                          )}
-                        </td>
-                        <td className="px-6 py-4 text-right">
-                          <button
-                            onClick={() => openSubModal(company)}
-                            className="rounded-lg bg-orange-600 hover:bg-orange-500 text-white px-3 py-1.5 text-xs font-bold transition cursor-pointer shadow-md shadow-orange-600/10"
-                          >
-                            Prolonger / Ajuster
-                          </button>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      ) : (
-        /* Statistics Table View */
-        <div className="overflow-hidden rounded-2xl border border-zinc-800 bg-[#121212] backdrop-blur-xl">
-          <div className="px-6 py-5 border-b border-zinc-800 bg-[#121212] flex items-center justify-between">
-            <h3 className="text-sm font-bold uppercase tracking-wider text-zinc-300">
-              Indicateurs Clés par Locataire
-            </h3>
-            <span className="flex items-center gap-1.5 text-xs text-orange-500 bg-orange-500/10 border border-orange-500/25 rounded-full px-3 py-1 font-semibold">
-              <Activity className="h-4 w-4" />
-              {companies.length} Compagnies enregistrées
-            </span>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm text-zinc-300">
-              <thead className="bg-black text-xs font-bold text-zinc-400 uppercase tracking-wider border-b border-zinc-800">
-                <tr>
-                  <th className="px-6 py-4">Compagnie</th>
-                  <th className="px-6 py-4">Forfait</th>
-                  <th className="px-6 py-4">Statut</th>
-                  <th className="px-6 py-4 text-center">Véhicules</th>
-                  <th className="px-6 py-4 text-center">Collaborateurs</th>
-                  <th className="px-6 py-4 text-center">Itinéraires</th>
-                  <th className="px-6 py-4 text-center">Abo. Actifs Usagers</th>
-                  <th className="px-6 py-4">Expiration</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-zinc-800 bg-black">
-                {companies.map((company, statIdx) => (
-                  <tr key={`company-stat-${company.id || statIdx}`} className="hover:bg-zinc-800/10 transition">
-                    <td className="px-6 py-4 font-bold text-white">
-                      <div className="flex flex-col">
-                        <span>{company.name}</span>
-                        <span className="text-[10px] text-zinc-500 font-medium">{company.subdomain ? `${company.subdomain}.babitrack.com` : 'Aucun'}</span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${getPlanBadge(company.plan)}`}>
-                        {company.plan}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${getStatusBadge(company.status, company.subscriptionExpiresAt)}`}>
-                        {getStatusLabel(company.status, company.subscriptionExpiresAt)}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-center font-semibold text-zinc-200">
-                      {company._count.vehicles} <span className="text-zinc-500 text-xs">/ {company.maxVehicles}</span>
-                    </td>
-                    <td className="px-6 py-4 text-center font-semibold text-zinc-200">
-                      {company._count.users} <span className="text-zinc-500 text-xs">/ {company.maxUsers}</span>
-                    </td>
-                    <td className="px-6 py-4 text-center text-zinc-400 font-semibold">
-                      {company._count.routes}
-                    </td>
-                    <td className="px-6 py-4 text-center text-orange-400 font-bold">
-                      {company._count.subscriptions}
-                    </td>
-                    <td className={`px-6 py-4 font-medium ${isExpired(company.subscriptionExpiresAt) ? 'text-red-400 font-bold' : 'text-zinc-400'}`}>
-                      {formatDate(company.subscriptionExpiresAt)}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
       )}
+
+      {/* Modern Custom Notification Modal Popup */}
+      <NotificationModal notification={notification} onClose={() => setNotification(null)} />
+
 
       {/* Add Company Modal */}
       {isCompanyModalOpen && (
@@ -1524,13 +1104,25 @@ export default function SuperAdminPage() {
                 <div className="relative">
                   <Key className="absolute left-3 top-3 h-4.5 w-4.5 text-zinc-500" />
                   <input
-                    type="password"
+                    type={showPassword ? 'text' : 'password'}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full bg-black border border-zinc-800 rounded-xl pl-10 pr-4 py-2.5 text-sm text-zinc-200 placeholder-zinc-600 focus:outline-none focus:border-orange-500"
+                    className="w-full bg-black border border-zinc-800 rounded-xl pl-10 pr-10 py-2.5 text-sm text-zinc-200 placeholder-zinc-600 focus:outline-none focus:border-orange-500"
                     placeholder="Mot de passe sécurisé"
                     required
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-zinc-500 hover:text-zinc-300 transition cursor-pointer"
+                    aria-label="Afficher ou masquer le mot de passe"
+                  >
+                    {showPassword ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
+                  </button>
                 </div>
               </div>
 
@@ -1769,5 +1361,17 @@ export default function SuperAdminPage() {
       {/* Modern Custom Notification Modal Popup */}
       <NotificationModal notification={notification} onClose={() => setNotification(null)} />
     </div>
+  );
+}
+
+export default function SuperAdminPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex h-64 w-full items-center justify-center">
+        <div className="h-8 w-8 border-4 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    }>
+      <SuperAdminPageContent />
+    </Suspense>
   );
 }

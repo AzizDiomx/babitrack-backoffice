@@ -1,10 +1,11 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
+import EditProfileModal from './EditProfileModal';
 import {
   LayoutDashboard,
   Users,
@@ -19,7 +20,8 @@ import {
   Sun,
   Moon,
   CreditCard,
-  X
+  X,
+  Settings
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -31,6 +33,7 @@ export default function Sidebar({ sidebarOpen = true, onCloseMobile }: SidebarPr
   const pathname = usePathname();
   const { user, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
+  const [editProfileOpen, setEditProfileOpen] = useState(false);
 
   const navigation = [
     { name: 'Tableau de bord', href: '/dashboard', icon: LayoutDashboard },
@@ -143,8 +146,8 @@ export default function Sidebar({ sidebarOpen = true, onCloseMobile }: SidebarPr
             </div>
 
             {/* Logged in User Section */}
-            <div className="flex items-center gap-x-4 px-2 py-3 border-t border-zinc-800 mt-4">
-              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-zinc-800 border border-zinc-800">
+            <div className="flex items-center gap-x-3 px-2 py-3 border-t border-zinc-800 mt-4">
+              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-zinc-800 border border-zinc-800 shrink-0">
                 <UserIcon className="h-5 w-5 text-zinc-400" />
               </div>
               <div className="flex-1 min-w-0">
@@ -156,16 +159,29 @@ export default function Sidebar({ sidebarOpen = true, onCloseMobile }: SidebarPr
                 </span>
               </div>
               <button
+                onClick={() => setEditProfileOpen(true)}
+                className="group p-1.5 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg hover:bg-zinc-800 border border-transparent hover:border-zinc-700 transition cursor-pointer"
+                title="Modifier mon profil"
+              >
+                <Settings className="h-4 w-4 text-zinc-400 group-hover:text-white transition" />
+              </button>
+              <button
                 onClick={logout}
-                className="group p-1.5 rounded-lg hover:bg-red-950/20 border border-transparent hover:border-red-500/10 transition cursor-pointer"
+                className="group p-1.5 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg hover:bg-red-950/20 border border-transparent hover:border-red-500/10 transition cursor-pointer"
                 title="Déconnexion"
               >
-                <LogOut className="h-5 w-5 text-zinc-500 group-hover:text-red-400 transition" />
+                <LogOut className="h-4 w-4 text-zinc-500 group-hover:text-red-400 transition" />
               </button>
             </div>
           </li>
         </ul>
       </nav>
+
+      {/* Edit Profile Modal */}
+      <EditProfileModal
+        isOpen={editProfileOpen}
+        onClose={() => setEditProfileOpen(false)}
+      />
     </div>
   );
 }

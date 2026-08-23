@@ -13,7 +13,8 @@ import {
   CheckCircle2,
   UserCheck,
   Navigation,
-  User
+  User,
+  BarChart3
 } from 'lucide-react';
 import { 
   AreaChart, 
@@ -55,21 +56,12 @@ interface EmbarkationSummary {
   passengers: EmbarkationPassenger[];
 }
 
-// Dummy data for weekly boardings
-const dummyWeeklyData = [
-  { name: 'Lun', boardings: 120 },
-  { name: 'Mar', boardings: 145 },
-  { name: 'Mer', boardings: 130 },
-  { name: 'Jeu', boardings: 165 },
-  { name: 'Ven', boardings: 190 },
-  { name: 'Sam', boardings: 45 },
-  { name: 'Dim', boardings: 10 },
-];
-
 export default function DashboardPage() {
   const { user } = useAuth();
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [embarkations, setEmbarkations] = useState<EmbarkationSummary[]>([]);
+  const [weeklyActivityData, setWeeklyActivityData] = useState<any[]>([]);
+  const [activityTimeframe, setActivityTimeframe] = useState<'7d' | '30d'>('7d');
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
@@ -79,6 +71,9 @@ export default function DashboardPage() {
       const res = await api.get('/api/dashboard/stats');
       setStats(res.data.stats);
       setEmbarkations(res.data.embarkationsToday);
+      if (res.data.weeklyActivity && res.data.weeklyActivity.length > 0) {
+        setWeeklyActivityData(res.data.weeklyActivity);
+      }
     } catch (err) {
       console.error('Erreur lors du chargement des stats:', err);
     } finally {
@@ -387,57 +382,164 @@ export default function DashboardPage() {
       </div>
 
       {/* Analytics chart */}
-      <div className="rounded-3xl border border-zinc-800 bg-[#121212] p-6 backdrop-blur-xl">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-zinc-800 pb-5 mb-6">
-          <div>
-            <h3 className="text-lg font-bold text-white">Activité Hebdomadaire</h3>
-            <p className="text-xs text-zinc-400 mt-0.5">Nombre total d'embarquements quotidiens sur les 7 derniers jours</p>
+      {(() => {
+        const hasActivity = weeklyActivityData.some((d) => (d.boardings || 0) > 0);
+        const totalBoardings = weeklyActivityData.reduce((acc, curr) => acc + (curr.boardings || 0), 0);
+        const avgBoardings = hasActivity ? Math.round(totalBoardings / (weeklyActivityData.length || 1)) : 0;
+        const sortedActivity = [...weeklyActivityData].sort((a, b) => (b.boardings || 0) - (a.boardings || 0));
+        const peakItem = hasActivity && sortedActivity[0]?.boardings > 0 ? sortedActivity[0] : { name: 'Aucun', boardings: 0 };
+
+        return (
+          <div className="rounded-3xl border border-zinc-800 bg-[#121212] p-6 backdrop-blur-xl space-y-6">
+            {/* Chart Header & Controls */}
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-zinc-800 pb-5">
+              <div>
+                <div className="flex items-center gap-2">
+                  <h3 className="text-lg font-bold text-white">Activité & Fréquentation Hebdomadaire</h3>
+                  <span className="inline-flex items-center rounded-full bg-orange-500/10 px-2.5 py-0.5 text-[10px] font-bold text-orange-400 border border-orange-500/20 uppercase tracking-wider">
+                    Scans QR Live
+                  </span>
+                </div>
+                <p className="text-xs text-zinc-400 mt-0.5">Analyse dynamique des embarquements quotidiens réels issus de la base de données</p>
+              </div>
+
+              {/* Timeframe Filter Pills */}
+              <div className="flex items-center gap-1.5 rounded-xl bg-black border border-zinc-800 p-1 self-start sm:self-auto">
+                <button
+                  onClick={() => setActivityTimeframe('7d')}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${
+                    activityTimeframe === '7d'
+                      ? 'bg-orange-600 text-white shadow-sm'
+                      : 'text-zinc-400 hover:text-white'
+                  }`}
+                >
+                  7 Derniers Jours
+                </button>
+                <button
+                  onClick={() => setActivityTimeframe('30d')}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${
+                    activityTimeframe === '30d'
+                      ? 'bg-orange-600 text-white shadow-sm'
+                      : 'text-zinc-400 hover:text-white'
+                  }`}
+                >
+                  30 Derniers Jours
+                </button>
+              </div>
+            </div>
+
+            {/* Metric Micro-Cards */}
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+              <div className="rounded-2xl border border-zinc-800 bg-black/60 p-3.5">
+                <span className="block text-[10px] font-bold uppercase tracking-wider text-zinc-500">Total Embarquements</span>
+                <div className="flex items-baseline gap-2 mt-1">
+                  <span className="text-xl font-extrabold text-white">{totalBoardings}</span>
+                  <span className="text-[10px] font-semibold text-zinc-400">scans réels</span>
+                </div>
+              </div>
+
+              <div className="rounded-2xl border border-zinc-800 bg-black/60 p-3.5">
+                <span className="block text-[10px] font-bold uppercase tracking-wider text-zinc-500">Moyenne Journalière</span>
+                <div className="flex items-baseline gap-2 mt-1">
+                  <span className="text-xl font-extrabold text-white">{avgBoardings}</span>
+                  <span className="text-[10px] font-semibold text-zinc-400">scans / jour</span>
+                </div>
+              </div>
+
+              <div className="rounded-2xl border border-zinc-800 bg-black/60 p-3.5">
+                <span className="block text-[10px] font-bold uppercase tracking-wider text-zinc-500">Jour de Pic d'Affluence</span>
+                <div className="flex items-baseline gap-2 mt-1">
+                  <span className="text-xl font-extrabold text-orange-400">{peakItem.name}</span>
+                  <span className="text-[10px] font-bold text-zinc-300">({peakItem.boardings} scans)</span>
+                </div>
+              </div>
+
+              <div className="rounded-2xl border border-zinc-800 bg-black/60 p-3.5">
+                <span className="block text-[10px] font-bold uppercase tracking-wider text-zinc-500">Statut Collecte Données</span>
+                <div className="flex items-baseline gap-2 mt-1">
+                  <span className={`text-sm font-extrabold ${hasActivity ? 'text-emerald-400' : 'text-zinc-400'}`}>
+                    {hasActivity ? 'En direct' : 'En attente'}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Recharts Area Chart or Empty State */}
+            {hasActivity ? (
+              <div className="h-80 w-full pt-2">
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart
+                    data={weeklyActivityData}
+                    margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
+                  >
+                    <defs>
+                      <linearGradient id="colorBoardings" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#ea580c" stopOpacity={0.4}/>
+                        <stop offset="95%" stopColor="#ea580c" stopOpacity={0}/>
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#27272a" vertical={false} />
+                    <XAxis 
+                      dataKey="name" 
+                      stroke="#a1a1aa" 
+                      fontSize={12} 
+                      tickLine={false} 
+                      axisLine={false} 
+                    />
+                    <YAxis 
+                      stroke="#a1a1aa" 
+                      fontSize={12} 
+                      tickLine={false} 
+                      axisLine={false} 
+                    />
+                    <Tooltip 
+                      content={({ active, payload }) => {
+                        if (active && payload && payload.length) {
+                          const data = payload[0].payload;
+                          return (
+                            <div className="rounded-2xl border border-zinc-800 bg-black/95 p-3 shadow-2xl backdrop-blur-md">
+                              <p className="text-xs font-bold text-white mb-1">
+                                {data.fullDate || data.name}
+                              </p>
+                              <div className="flex items-center gap-2">
+                                <div className="h-2.5 w-2.5 rounded-full bg-orange-500" />
+                                <span className="text-xs font-bold text-orange-400">
+                                  {data.boardings} embarquements
+                                </span>
+                              </div>
+                            </div>
+                          );
+                        }
+                        return null;
+                      }}
+                    />
+                    <Area 
+                      type="monotone" 
+                      dataKey="boardings" 
+                      name="Embarquements"
+                      stroke="#ea580c" 
+                      strokeWidth={3.5}
+                      fillOpacity={1} 
+                      fill="url(#colorBoardings)" 
+                      activeDot={{ r: 6, fill: '#ea580c', stroke: '#ffffff', strokeWidth: 2 }}
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center h-72 rounded-2xl border border-dashed border-zinc-800 bg-black/40 p-6 text-center">
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-zinc-900 border border-zinc-800 mb-3">
+                  <BarChart3 className="h-6 w-6 text-zinc-500" />
+                </div>
+                <h4 className="text-sm font-bold text-zinc-300">Aucune donnée d'embarquement disponible</h4>
+                <p className="text-xs text-zinc-500 max-w-sm mt-1">
+                  Les statistiques d'activité s'afficheront en temps réel dès que les chauffeurs commenceront à scanner les passagers avec l'application mobile.
+                </p>
+              </div>
+            )}
           </div>
-        </div>
-        <div className="h-80 w-full">
-          <ResponsiveContainer width="100%" height="100%">
-            <AreaChart
-              data={dummyWeeklyData}
-              margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
-            >
-              <defs>
-                <linearGradient id="colorBoardings" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#ea580c" stopOpacity={0.2}/>
-                  <stop offset="95%" stopColor="#ea580c" stopOpacity={0}/>
-                </linearGradient>
-              </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#27272a" vertical={false} />
-              <XAxis 
-                dataKey="name" 
-                stroke="#a1a1aa" 
-                fontSize={12} 
-                tickLine={false} 
-                axisLine={false} 
-              />
-              <YAxis 
-                stroke="#a1a1aa" 
-                fontSize={12} 
-                tickLine={false} 
-                axisLine={false} 
-              />
-              <Tooltip 
-                contentStyle={{ backgroundColor: '#000000', borderColor: '#27272a', borderRadius: '12px' }}
-                labelStyle={{ color: '#f8fafc', fontWeight: 'bold' }}
-                itemStyle={{ color: '#ea580c' }}
-              />
-              <Area 
-                type="monotone" 
-                dataKey="boardings" 
-                name="Embarquements"
-                stroke="#ea580c" 
-                strokeWidth={3}
-                fillOpacity={1} 
-                fill="url(#colorBoardings)" 
-              />
-            </AreaChart>
-          </ResponsiveContainer>
-        </div>
-      </div>
+        );
+      })()}
     </div>
   );
 }

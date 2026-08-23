@@ -23,6 +23,7 @@ interface AuthContextType {
   loading: boolean;
   isAuthenticated: boolean;
   login: (telephone: string, password: string) => Promise<void>;
+  updateProfile: (updatedData: Partial<User>) => void;
   logout: () => void;
 }
 
@@ -110,6 +111,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
+  const updateProfile = (updatedData: Partial<User>) => {
+    if (!user) return;
+    const newUser = { ...user, ...updatedData };
+    setUser(newUser);
+    localStorage.setItem('babitrack_admin_user', JSON.stringify(newUser));
+  };
+
   const logout = () => {
     localStorage.removeItem('babitrack_admin_token');
     localStorage.removeItem('babitrack_admin_refresh_token');
@@ -128,6 +136,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         loading,
         isAuthenticated: !!token,
         login,
+        updateProfile,
         logout,
       }}
     >

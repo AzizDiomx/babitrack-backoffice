@@ -281,8 +281,8 @@ export default function Map() {
     <div
       className={
         isFullscreen
-          ? 'fixed inset-0 z-[99999] bg-zinc-950 p-4 w-screen h-screen dark-map relative flex flex-col'
-          : 'dark-map h-full w-full rounded-3xl overflow-hidden border border-zinc-800/80 shadow-inner relative'
+          ? 'fixed inset-0 z-[99999] bg-zinc-950 p-4 w-screen h-screen relative flex flex-col'
+          : 'h-full w-full rounded-3xl overflow-hidden border border-zinc-800/80 shadow-inner relative'
       }
     >
       {/* Top Map Controls */}

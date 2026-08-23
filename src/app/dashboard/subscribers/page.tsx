@@ -17,11 +17,23 @@ import {
   Plus,
   Phone,
   Mail,
-  Lock
+  Lock,
+  RefreshCw,
+  Eye,
+  EyeOff
 } from 'lucide-react';
 import api from '../../../services/api';
 import { useAuth } from '../../../context/AuthContext';
 import NotificationModal, { ConfirmModal, NotificationState, ConfirmState } from '../../../components/NotificationModal';
+
+interface SubscriptionItem {
+  id: string;
+  type: string;
+  montant: number;
+  dateDebut: string;
+  dateFin: string;
+  statut: string;
+}
 
 interface User {
   id: string;
@@ -33,6 +45,7 @@ interface User {
   statut: string;
   typeSubscription: string | null;
   subscriptionExpiresAt: string | null;
+  subscriptions?: SubscriptionItem[];
   qrCodeUrl: string | null;
   createdAt?: string;
 }
@@ -63,6 +76,7 @@ export default function SubscribersPage() {
   const [telephone, setTelephone] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   
   // Activation form state
   const [subType, setSubType] = useState('ALLER_RETOUR');
@@ -283,6 +297,22 @@ export default function SubscribersPage() {
     }
   };
 
+  const handleTriggerExpirations = async () => {
+    try {
+      const res = await api.post('/api/users/check-expirations');
+      const { expiredUsersCount } = res.data;
+      notify(
+        'success',
+        `Vérification terminée : ${expiredUsersCount || 0} abonné(s) dont l'échéance est dépassée ont été automatiquement suspendu(s).`,
+        'Mise à jour des abonnements'
+      );
+      fetchSubscribers();
+    } catch (err: any) {
+      console.error(err);
+      notify('error', 'Erreur lors de la vérification des expirations d\'abonnements.');
+    }
+  };
+
   return (
     <div className="min-h-full bg-black p-6 lg:p-8 overflow-y-auto">
       {/* Header */}
@@ -295,8 +325,18 @@ export default function SubscribersPage() {
             Activer, suspendre les abonnements des élèves et importer en masse via des fichiers Excel
           </p>
         </div>
-        <div>
+        <div className="flex items-center gap-3 flex-wrap sm:flex-nowrap">
           <button
+            type="button"
+            onClick={handleTriggerExpirations}
+            className="flex items-center justify-center gap-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-300 hover:text-white px-4 py-3 min-h-[44px] text-sm font-semibold w-full sm:w-auto transition duration-150 cursor-pointer shadow-sm"
+            title="Vérifier les dates d'échéance et suspendre immédiatement les élèves dont l'abonnement a expiré"
+          >
+            <RefreshCw className="h-4 w-4 text-orange-500" />
+            <span>Purger les expirations</span>
+          </button>
+          <button
+            type="button"
             onClick={() => setIsAddModalOpen(true)}
             className="flex items-center justify-center gap-2 rounded-xl bg-orange-600 hover:bg-orange-500 text-white px-4 py-3 min-h-[44px] text-sm font-semibold w-full sm:w-auto transition duration-150 cursor-pointer shadow-md shadow-orange-600/10"
           >
@@ -359,36 +399,57 @@ export default function SubscribersPage() {
                     <tr>
                       <th className="px-6 py-4">Nom complet</th>
                       <th className="px-6 py-4">Téléphone</th>
+                      <th className="px-6 py-4">Échéance Abonnement</th>
                       <th className="px-6 py-4">Statut</th>
                       <th className="px-6 py-4 text-right">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-850 bg-[#121212]">
-                    {filteredSubscribers.map((sub) => (
-                      <tr key={sub.id} className="hover:bg-[#121212] transition">
-                        <td className="whitespace-nowrap px-6 py-4.5">
-                          <div className="flex items-center gap-3">
-                            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-800 text-slate-350 border border-slate-700/50 font-bold text-sm">
-                              {sub.prenom[0]}{sub.nom[0]}
+                    {filteredSubscribers.map((sub) => {
+                      const latestSub = sub.subscriptions && sub.subscriptions[0];
+                      const expiryDateStr = latestSub?.dateFin || sub.subscriptionExpiresAt;
+                      const expiryDate = expiryDateStr ? new Date(expiryDateStr) : null;
+                      const isPast = expiryDate ? expiryDate < new Date() : false;
+
+                      return (
+                        <tr key={sub.id} className="hover:bg-[#121212] transition">
+                          <td className="whitespace-nowrap px-6 py-4.5">
+                            <div className="flex items-center gap-3">
+                              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-800 text-slate-350 border border-slate-700/50 font-bold text-sm">
+                                {sub.prenom[0]}{sub.nom[0]}
+                              </div>
+                              <div>
+                                <p className="text-sm font-bold text-zinc-200">
+                                  {sub.prenom} {sub.nom}
+                                </p>
+                                <p className="text-xs text-zinc-500">
+                                  Inscrit le {sub.createdAt ? new Date(sub.createdAt).toLocaleDateString('fr-FR') : 'Récemment'}
+                                </p>
+                              </div>
                             </div>
-                            <div>
-                              <p className="text-sm font-bold text-zinc-200">
-                                {sub.prenom} {sub.nom}
-                              </p>
-                              <p className="text-xs text-zinc-500">
-                                Inscrit le {sub.createdAt ? new Date(sub.createdAt).toLocaleDateString('fr-FR') : 'Récemment'}
-                              </p>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="whitespace-nowrap px-6 py-4.5 text-sm text-zinc-300">
-                          {sub.telephone}
-                        </td>
-                        <td className="whitespace-nowrap px-6 py-4.5">
-                          <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold uppercase tracking-wider ${getStatusBadgeStyle(sub.statut)}`}>
-                            {sub.statut === 'EN_ATTENTE' ? 'En attente' : sub.statut}
-                          </span>
-                        </td>
+                          </td>
+                          <td className="whitespace-nowrap px-6 py-4.5 text-sm text-zinc-300">
+                            {sub.telephone}
+                          </td>
+                          <td className="whitespace-nowrap px-6 py-4.5 text-sm">
+                            {expiryDate ? (
+                              <div className="flex flex-col">
+                                <span className={`text-xs font-bold ${isPast ? 'text-red-400' : 'text-zinc-200'}`}>
+                                  {expiryDate.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' })}
+                                </span>
+                                <span className={`text-[10px] font-semibold ${isPast ? 'text-red-400/90' : 'text-emerald-400'}`}>
+                                  {isPast ? '🔴 Expiré' : `🟢 Valide (${latestSub?.type || 'ALLER_RETOUR'})`}
+                                </span>
+                              </div>
+                            ) : (
+                              <span className="text-xs text-zinc-500 italic">Non renseignée</span>
+                            )}
+                          </td>
+                          <td className="whitespace-nowrap px-6 py-4.5">
+                            <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold uppercase tracking-wider ${getStatusBadgeStyle(sub.statut)}`}>
+                              {sub.statut === 'EN_ATTENTE' ? 'En attente' : sub.statut}
+                            </span>
+                          </td>
                         <td className="whitespace-nowrap px-6 py-4.5 text-right text-sm">
                           <div className="flex justify-end gap-2">
                             {sub.statut !== 'ACTIF' ? (
@@ -421,7 +482,8 @@ export default function SubscribersPage() {
                           </div>
                         </td>
                       </tr>
-                    ))}
+                    );
+                  })}
                   </tbody>
                 </table>
               </div>
@@ -698,13 +760,25 @@ export default function SubscribersPage() {
                 <div className="relative">
                   <Lock className="absolute left-3.5 top-3.5 h-4 w-4 text-zinc-500" />
                   <input
-                    type="password"
+                    type={showPassword ? 'text' : 'password'}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full bg-black border border-zinc-800 rounded-xl pl-10 pr-4 py-2.5 text-sm text-zinc-200 placeholder-slate-600 focus:outline-none focus:border-orange-500"
+                    className="w-full bg-black border border-zinc-800 rounded-xl pl-10 pr-10 py-2.5 text-sm text-zinc-200 placeholder-slate-600 focus:outline-none focus:border-orange-500"
                     placeholder="••••••••"
                     required
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-zinc-500 hover:text-zinc-300 transition cursor-pointer"
+                    aria-label="Afficher ou masquer le mot de passe"
+                  >
+                    {showPassword ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
+                  </button>
                 </div>
                 <p className="text-[10px] text-zinc-500 mt-1">
                   Ce mot de passe permettra à l'élève ou à son tuteur de s'authentifier sur l'application mobile.

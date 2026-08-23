@@ -1,4 +1,9 @@
 @import "tailwindcss";
+@import "leaflet/dist/leaflet.css";
+
+/* ==========================================================================
+   BABITRACK THEME DESIGN TOKENS (LIGHT & DARK MODE)
+   ========================================================================== */
 
 :root, html.dark {
   --background: #000000;
@@ -6,6 +11,7 @@
   --card-bg: #121212;
   --card-border: #27272a;
   --input-bg: #18181b;
+  color-scheme: dark;
 }
 
 html.light {
@@ -13,7 +19,8 @@ html.light {
   --foreground: #18181B;
   --card-bg: #FFFFFF;
   --card-border: #E4E4E7;
-  --input-bg: #F4F4F5;
+  --input-bg: #FFFFFF;
+  color-scheme: light;
 }
 
 @theme inline {
@@ -52,32 +59,218 @@ html.light ::-webkit-scrollbar-thumb {
   background: #ea580c;
 }
 
-/* Leaflet maps custom dark theme overlay */
-html.dark .dark-map .leaflet-tile {
-  filter: hue-rotate(180deg) invert(100%) contrast(90%) brightness(90%) saturate(120%);
+/* ==========================================================================
+   HIGH-PRECISION LIGHT MODE STYLING SYSTEM (html.light)
+   ========================================================================== */
+
+/* 1. Root Layouts & Page Containers */
+html.light body,
+html.light main,
+html.light .bg-black,
+html.light .bg-zinc-950 {
+  background-color: #F4F4F5 !important;
+  color: #18181B !important;
 }
-html.dark .dark-map .leaflet-container {
-  background: #000000;
+
+/* 2. Content Cards, Sidebars, Topbars & Panels */
+html.light [class*="bg-[#121212]"],
+html.light .bg-zinc-900,
+html.light .bg-black\/60,
+html.light .bg-black\/80,
+html.light .bg-black\/90,
+html.light .bg-black\/95 {
+  background-color: #FFFFFF !important;
+  color: #18181B !important;
+}
+
+/* 3. Modal Dialog Backdrops & Elevated Cards */
+html.light .fixed.inset-0.bg-black\/80,
+html.light .fixed.inset-0.bg-black\/60 {
+  background-color: rgba(0, 0, 0, 0.45) !important;
+  backdrop-filter: blur(8px) !important;
+}
+
+html.light [role="dialog"],
+html.light .shadow-2xl {
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.05) !important;
+}
+
+/* 4. Borders & Dividers */
+html.light .border-zinc-800,
+html.light .border-zinc-900,
+html.light .border-zinc-800\/80,
+html.light .border-zinc-700,
+html.light .divide-zinc-800,
+html.light .border-t.border-zinc-800,
+html.light .border-b.border-zinc-800 {
+  border-color: #E4E4E7 !important;
+}
+
+/* 5. Typography & Headings Hierarchy */
+html.light h1,
+html.light h2,
+html.light h3,
+html.light h4,
+html.light .text-white,
+html.light .text-zinc-100,
+html.light .text-zinc-200 {
+  color: #09090B !important;
+}
+
+html.light .text-zinc-300,
+html.light .text-zinc-400 {
+  color: #3F3F46 !important;
+}
+
+html.light .text-zinc-500 {
+  color: #71717A !important;
+}
+
+html.light .text-zinc-600 {
+  color: #52525B !important;
+}
+
+/* 6. Navigation Items & Links */
+html.light aside nav a:not(.bg-orange-600):not(.bg-orange-500),
+html.light aside nav button {
+  color: #52525B;
+}
+
+html.light aside nav a:hover:not(.bg-orange-600):not(.bg-orange-500),
+html.light aside nav button:hover {
+  background-color: #F4F4F5 !important;
+  color: #09090B !important;
+}
+
+/* 7. Form Controls (Inputs, Selects, Textareas & Buttons) */
+html.light input:not([type="checkbox"]):not([type="radio"]),
+html.light select,
+html.light textarea {
+  background-color: #FFFFFF !important;
+  color: #09090B !important;
+  border-color: #D4D4D8 !important;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.04) !important;
+}
+
+html.light input:focus,
+html.light select:focus,
+html.light textarea:focus {
+  border-color: #ea580c !important;
+  box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.15) !important;
+}
+
+html.light input::placeholder,
+html.light textarea::placeholder {
+  color: #A1A1AA !important;
+}
+
+/* 8. Data Tables */
+html.light table {
+  background-color: #FFFFFF !important;
+  color: #18181B !important;
+}
+
+html.light table thead {
+  background-color: #F4F4F5 !important;
+  border-bottom: 1px solid #E4E4E7 !important;
+}
+
+html.light table thead th {
+  color: #52525B !important;
+  font-weight: 700 !important;
+}
+
+html.light table tbody tr {
+  border-bottom: 1px solid #F4F4F5 !important;
+}
+
+html.light table tbody tr:hover {
+  background-color: #FAFAFA !important;
+}
+
+/* 9. Secondary Buttons & Neutral Pill Badges */
+html.light .bg-zinc-800,
+html.light .bg-zinc-800\/60,
+html.light .bg-zinc-800\/40 {
+  background-color: #F4F4F5 !important;
+  color: #18181B !important;
+  border-color: #E4E4E7 !important;
+}
+
+html.light .bg-zinc-800:hover {
+  background-color: #E4E4E7 !important;
+}
+
+/* 10. Status Badges & Pills (High Contrast in Light Mode) */
+html.light .bg-emerald-500\/10 {
+  background-color: #ECFDF5 !important;
+  color: #047857 !important;
+  border-color: #A7F3D0 !important;
+}
+
+html.light .bg-red-500\/10,
+html.light .bg-red-950\/20 {
+  background-color: #FEF2F2 !important;
+  color: #B91C1C !important;
+  border-color: #FECACA !important;
+}
+
+html.light .bg-orange-500\/10 {
+  background-color: #FFF7ED !important;
+  color: #C2410C !important;
+  border-color: #FED7AA !important;
+}
+
+html.light .bg-blue-500\/10 {
+  background-color: #EFF6FF !important;
+  color: #1D4ED8 !important;
+  border-color: #BFDBFE !important;
+}
+
+/* 11. Recharts Custom Tooltips in Light Mode */
+html.light .recharts-default-tooltip,
+html.light .backdrop-blur-md.bg-black\/95 {
+  background-color: #FFFFFF !important;
+  color: #09090B !important;
+  border-color: #E4E4E7 !important;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Leaflet maps custom theme overlays (Clean controls & popups) */
+html.dark .leaflet-container {
   font-family: var(--font-sans);
 }
-html.dark .dark-map .leaflet-bar a {
+html.dark .leaflet-bar a {
   background-color: #121212 !important;
   color: #f8fafc !important;
   border-bottom: 1px solid #27272a !important;
 }
-html.dark .dark-map .leaflet-bar a:hover {
+html.dark .leaflet-bar a:hover {
   background-color: #27272a !important;
 }
-html.dark .dark-map .leaflet-popup-content-wrapper {
+html.dark .leaflet-popup-content-wrapper {
   background: #121212 !important;
   color: #f8fafc !important;
   border-radius: 12px !important;
   border: 1px solid #27272a;
   padding: 4px;
 }
-html.dark .dark-map .leaflet-popup-tip {
+html.dark .leaflet-popup-tip {
   background: #121212 !important;
 }
 
-/* Import Leaflet CSS directly in globals */
-@import "leaflet/dist/leaflet.css";
+html.light .leaflet-bar a {
+  background-color: #FFFFFF !important;
+  color: #18181B !important;
+  border-bottom: 1px solid #E4E4E7 !important;
+}
+html.light .leaflet-popup-content-wrapper {
+  background: #FFFFFF !important;
+  color: #18181B !important;
+  border-radius: 12px !important;
+  border: 1px solid #E4E4E7;
+  padding: 4px;
+}
+html.light .leaflet-popup-tip {
+  background: #FFFFFF !important;
+}
